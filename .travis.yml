@@ -6,6 +6,11 @@ scala:
 jdk:
   - oraclejdk8
 
+script:
+  - sbt test
+  - sbt package
+
+
 notifications:
   email:
     - pricingtool@autoscout24.com
