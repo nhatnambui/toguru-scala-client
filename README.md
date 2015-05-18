@@ -1,6 +1,8 @@
 # FeatureBee for Scala
 FeatureBee client for scala applications
 
+## Status
+[![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://github.com/AutoScout24/featurebee-scala)
 
 ### Contract
 The FeatureBee Server returns a list of all defined features.
