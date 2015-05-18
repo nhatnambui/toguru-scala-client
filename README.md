@@ -1,5 +1,5 @@
 # FeatureBee for Scala
-FeatureBee client for scala applications
+FeatureBee client for Scala applications
 
 ## Status
 [![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://travis-ci.org/AutoScout24/featurebee-scala)
