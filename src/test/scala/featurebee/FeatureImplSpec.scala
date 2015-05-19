@@ -1,10 +1,9 @@
 package featurebee
 
 import featurebee.ClientInfo.Browser._
-import featurebee.impl.{FeatureDescription, BrowserCondition, AlwaysOffCondition, AlwaysOnCondition}
-import featurebee.impl.FeatureDescriptionSingleton.State._
 import featurebee.api.FeatureImpl
-import featurebee.impl.{BrowserCondition, AlwaysOffCondition, AlwaysOnCondition}
+import featurebee.impl.FeatureDescriptionSingleton.State._
+import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, BrowserCondition, FeatureDescription}
 import org.scalatest.FeatureSpec
 import org.scalatest.OptionValues._
 
@@ -17,17 +16,17 @@ class FeatureImplSpec extends FeatureSpec {
   
   feature("Standard feature activation") {
     scenario("Feature is active when using always on condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InDevelopment, Set(AlwaysOnCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOnCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === true)
     }
 
     scenario("Feature is not active when using always off condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InDevelopment, Set(AlwaysOffCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOffCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
 
     scenario("Feature is not active when not all conditions are met") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InDevelopment, Set(AlwaysOffCondition, AlwaysOnCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOffCondition, AlwaysOnCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
   }
@@ -35,13 +34,13 @@ class FeatureImplSpec extends FeatureSpec {
   feature("God mode overriding of feature settings") {
     scenario("Overriding has precedence") {
       val clientInfoForcedAlwaysOn = ClientInfoImpl(forcedFeatureToogle = (_) => Some(true))
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InDevelopment, Set(AlwaysOffCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOffCondition))
       assert(new FeatureImpl(featureDescription).isActive(clientInfoForcedAlwaysOn) === true)
     }
   }
 
   feature("Using block convenience methods in Feature for chrome only feature")  {
-    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(), InDevelopment, Set(BrowserCondition(Set(Chrome))))
+    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(BrowserCondition(Set(Chrome))))
     val feature = new FeatureImpl(featureDescriptionChromeOnly)
 
     scenario("Feature block for chrome clients is executed") {

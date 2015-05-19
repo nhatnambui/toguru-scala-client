@@ -14,7 +14,7 @@ object FeatureDescriptionSingleton {
 
   object State extends Enumeration {
     type StateType = Value
-    val InDevelopment, UnderReview, Released = Value
+    val InProgress, Experimental, Released = Value
   }
 }
 
