@@ -1,5 +1,8 @@
 package featurebee
 
+import FeatureDescription.Tag
+import FeatureDescription.State.State
+
 /**
  * @author Chris Wewerka
  */
