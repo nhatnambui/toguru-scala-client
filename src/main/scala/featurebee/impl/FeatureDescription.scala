@@ -1,7 +1,7 @@
-package featurebee
+package featurebee.impl
 
-import FeatureDescription.Tag
-import FeatureDescription.State.State
+import featurebee.impl.FeatureDescription.State.State
+import featurebee.impl.FeatureDescription.Tag
 
 /**
  * @author Chris Wewerka

@@ -1,6 +1,8 @@
-package featurebee
+package featurebee.impl
 
 import java.util.Locale
+
+import featurebee.ClientInfo
 import featurebee.ClientInfo.Browser.Browser
 
 /**

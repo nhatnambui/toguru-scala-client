@@ -2,7 +2,8 @@ package featurebee
 
 import java.util.Locale
 import ClientInfo.Browser.Browser
-import featurebee.Feature.FeatureName
+import featurebee.api.Feature
+import Feature.FeatureName
 
 /**
  * @author Chris Wewerka

@@ -1,6 +1,7 @@
 package featurebee
 
 import featurebee.ClientInfo.Browser._
+import featurebee.impl.BrowserCondition
 import org.scalatest.FeatureSpec
 
 /**

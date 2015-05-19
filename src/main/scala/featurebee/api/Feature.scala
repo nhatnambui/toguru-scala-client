@@ -1,9 +1,14 @@
-package featurebee
+package featurebee.api
+
+import featurebee.ClientInfo
+import featurebee.impl.FeatureDescription
+
+import scala.annotation.implicitNotFound
 
 /**
  * @author Chris Wewerka
  */
-trait Feature {
+sealed trait Feature {
   /**
    * Executes the block if the feature is active
    * @return a some if the block has been executed, containing the result of the block
@@ -21,20 +26,26 @@ trait Feature {
   def isActive(implicit clientInfo: ClientInfo): Boolean
 }
 
-class FeatureImpl(desc: FeatureDescription) extends Feature {
-  /**
-   * Executes the block if the feature is active
-   * @return a some if the block has been executed, containing the result of the block
-   * @tparam T the return type of the block
-   */
+abstract class BaseFeature extends Feature {
   override def ifActive[T](block: => T)(implicit clientInfo: ClientInfo): Option[T] = if (isActive) Some(block) else None
-
-  /**
-   * Executes the block if the feature is not active
-   * @return a some if the block has been executed, containing the result of the block
-   * @tparam T the return type of the block
-   */
   override def ifNotActive[T](block: => T)(implicit clientInfo: ClientInfo): Option[T] = if (! isActive) Some(block) else None
+}
+
+/**
+ * Use this object if you want to default to true for unknown feature names.
+ */
+object AlwaysOnFeature extends BaseFeature {
+  override def isActive(implicit clientInfo: ClientInfo): Boolean = true
+}
+
+/**
+ * Use this object if you want to default to false for unknown feature names.
+ */
+object AlwaysOffFeature extends BaseFeature {
+  override def isActive(implicit clientInfo: ClientInfo): Boolean = false
+}
+
+class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
 
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
     // TODO take state into account
@@ -46,4 +57,7 @@ class FeatureImpl(desc: FeatureDescription) extends Feature {
 
 object Feature {
   type FeatureName = String
+
+  @implicitNotFound("Please import your desired implementation of FeatureRegistry")
+  def apply(name: String)(implicit featureRegistry: FeatureRegistry): Option[Feature] = featureRegistry.feature(name)
 }

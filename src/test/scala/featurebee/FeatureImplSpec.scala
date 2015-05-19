@@ -1,7 +1,10 @@
 package featurebee
 
 import featurebee.ClientInfo.Browser._
-import featurebee.FeatureDescription.State._
+import featurebee.impl.{FeatureDescription, BrowserCondition, AlwaysOffCondition, AlwaysOnCondition}
+import FeatureDescription.State._
+import featurebee.api.FeatureImpl
+import featurebee.impl.{BrowserCondition, AlwaysOffCondition, AlwaysOnCondition}
 import org.scalatest.FeatureSpec
 import org.scalatest.OptionValues._
 
