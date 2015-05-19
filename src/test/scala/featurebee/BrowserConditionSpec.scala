@@ -1,8 +1,7 @@
-package com.featurebee
+package featurebee
 
+import featurebee.ClientInfo.Browser._
 import org.scalatest.FeatureSpec
-import ClientInfo.Browser._
-import org.scalatest.OptionValues._
 
 /**
  * @author Chris Wewerka

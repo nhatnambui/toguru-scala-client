@@ -1,4 +1,4 @@
-package com.featurebee
+package featurebee
 
 /**
  * @author Chris Wewerka

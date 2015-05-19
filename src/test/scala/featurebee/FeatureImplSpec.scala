@@ -1,8 +1,8 @@
-package com.featurebee
+package featurebee
 
+import featurebee.ClientInfo.Browser._
+import featurebee.FeatureDescription.State._
 import org.scalatest.FeatureSpec
-import FeatureDescription.State._
-import ClientInfo.Browser._
 import org.scalatest.OptionValues._
 
 /**

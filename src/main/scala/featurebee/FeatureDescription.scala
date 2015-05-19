@@ -1,7 +1,4 @@
-package com.featurebee
-
-import com.featurebee.FeatureDescription.State.State
-import com.featurebee.FeatureDescription.Tag
+package featurebee
 
 /**
  * @author Chris Wewerka
