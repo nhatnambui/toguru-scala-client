@@ -1,8 +1,6 @@
 package featurebee.json
 
-import featurebee.api.Feature
 import org.scalatest.FunSuite
-import org.scalatest.OptionValues._
 
 class StaticJsonFeatureRegistrySuite extends FunSuite {
 
