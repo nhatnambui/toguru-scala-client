@@ -15,7 +15,7 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                      |  "name": "Name of the Feature",
                      |  "description": "Some additional description",
                      |  "tags": ["Team Name", "Or Service name"],
-                     |  "state": "inDevelopment",
+                     |  "state": "inProgress",
                      |  "conditions": [{"culture": ["de-DE"]}, {"browser": ["Chrome"]}]
                      |}]""".stripMargin
 
