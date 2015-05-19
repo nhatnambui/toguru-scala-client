@@ -9,9 +9,3 @@ scalaVersion := "2.11.6"
 
 // Change this to another test framework if you prefer
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
-
-lazy val root = (project in file(".")).
-  enablePlugins(BuildInfoPlugin).
-  settings(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
-  )

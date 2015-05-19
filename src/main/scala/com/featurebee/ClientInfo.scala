@@ -15,8 +15,8 @@ trait ClientInfo {
   val forcedFeatureToogle: FeatureName => Option[Boolean]
 }
 
-case class ClientInfoImpl(browser: Option[Browser], culture: Option[Locale],
-                          forcedFeatureToogle: FeatureName => Option[Boolean]) extends ClientInfo
+case class ClientInfoImpl(browser: Option[Browser] = None, culture: Option[Locale] = None,
+                          forcedFeatureToogle: FeatureName => Option[Boolean] = (_) => None) extends ClientInfo
 
 object ClientInfo {
 
