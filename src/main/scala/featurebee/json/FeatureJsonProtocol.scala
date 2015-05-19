@@ -30,7 +30,12 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
       val jLocales = locales.toList.map {
         e =>
           val splitted = e.asInstanceOf[JsString].value.split('-')
-          new Locale(splitted(0), splitted(1))
+          splitted.size match {
+            case 2 => new Locale(splitted(0), splitted(1))
+            case 1 => new Locale(splitted(0))
+            case _ => throw new Exception("invalid locale string in feature description")
+          }
+
 
       }
       CultureCondition(jLocales.toSet)
@@ -48,8 +53,8 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     
     def write(c: Condition) = ???
     def read(value: JsValue) = {
-      value.asJsObject.fields.get("culture").map { case JsArray(locales) => mapLocales(locales) }.orElse {
-        value.asJsObject.fields.get("browser").map { case JsArray(browsers) => mapBrowsers(browsers)}
+      value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
+        value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers)}
         // TODO traffic dist
       }.getOrElse(throw new DeserializationException("Subclass of Condition expected"))
     }
