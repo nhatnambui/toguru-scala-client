@@ -37,6 +37,7 @@ class FeatureImpl(desc: FeatureDescription) extends Feature {
   override def ifNotActive[T](block: => T)(implicit clientInfo: ClientInfo): Option[T] = if (! isActive) Some(block) else None
 
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
+    // TODO take state into account
     clientInfo.forcedFeatureToogle(desc.name).getOrElse {
       desc.activationConditions.forall(cond => cond.applies(clientInfo))
     }

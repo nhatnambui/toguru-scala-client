@@ -11,6 +11,14 @@ sealed trait Condition {
   def applies(clientInfo: ClientInfo): Boolean
 }
 
+case object AlwaysOnCondition extends Condition {
+  override def applies(clientInfo: ClientInfo): Boolean = true
+}
+
+case object AlwaysOffCondition extends Condition {
+  override def applies(clientInfo: ClientInfo): Boolean = false
+}
+
 case class BrowserCondition(browsers: Set[Browser]) extends Condition {
   override def applies(clientInfo: ClientInfo): Boolean = clientInfo.browser.exists(browsers.contains)
 }

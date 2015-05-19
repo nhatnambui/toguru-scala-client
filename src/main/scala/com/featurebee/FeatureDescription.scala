@@ -6,13 +6,7 @@ import com.featurebee.FeatureDescription.Tag
 /**
  * @author Chris Wewerka
  */
-trait FeatureDescription {
-  def name: String
-  def description: String
-  def tags: Set[Tag]
-  def state: State
-  def activationConditions: Set[Condition]
-}
+case class FeatureDescription(name: String, description: String, tags: Set[Tag], state: State, activationConditions: Set[Condition])
 
 object FeatureDescription {
 

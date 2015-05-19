@@ -21,4 +21,6 @@ class BrowserConditionSpec extends FeatureSpec {
       assert(BrowserCondition(Set(Ie)).applies(clientInfo) === false)
     }
   }
+
+  // TODO other conditions tests
 }
