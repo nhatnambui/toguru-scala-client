@@ -8,4 +8,7 @@ version in ThisBuild := "1." + Properties.envOrElse("TRAVIS_BUILD_NUMBER", "0-SN
 scalaVersion := "2.11.6"
 
 // Change this to another test framework if you prefer
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+libraryDependencies ++= Seq(
+  "io.spray" %%  "spray-json" % "1.3.2",
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+)

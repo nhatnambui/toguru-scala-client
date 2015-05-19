@@ -50,7 +50,7 @@ class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
     // TODO take state into account
     clientInfo.forcedFeatureToogle(desc.name).getOrElse {
-      desc.activationConditions.forall(cond => cond.applies(clientInfo))
+      desc.conditions.forall(cond => cond.applies(clientInfo))
     }
   }
 }

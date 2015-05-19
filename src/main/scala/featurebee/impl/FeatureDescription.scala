@@ -1,20 +1,20 @@
 package featurebee.impl
 
-import featurebee.impl.FeatureDescription.State.State
-import featurebee.impl.FeatureDescription.Tag
+import featurebee.impl.FeatureDescriptionSingleton.State.StateType
+import featurebee.impl.FeatureDescriptionSingleton.Tag
 
 /**
  * @author Chris Wewerka
  */
-case class FeatureDescription(name: String, description: String, tags: Set[Tag], state: State, activationConditions: Set[Condition])
+case class FeatureDescription(name: String, description: String, tags: Set[Tag], state: StateType, conditions: Set[Condition])
 
-object FeatureDescription {
+object FeatureDescriptionSingleton {
 
   type Tag = String
 
   object State extends Enumeration {
-    type State = Value
-    val Development, Review, Released = Value
+    type StateType = Value
+    val InDevelopment, UnderReview, Released = Value
   }
 }
 
