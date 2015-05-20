@@ -52,8 +52,6 @@ class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
   }
 }
 
-kk
-
 object Feature {
   type FeatureName = String
 
