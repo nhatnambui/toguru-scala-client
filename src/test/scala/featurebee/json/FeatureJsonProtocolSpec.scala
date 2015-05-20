@@ -27,13 +27,21 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                      |  "conditions": [{"culture": ["en"]}, {"browser": ["Firefox"]}]
                      |}]""".stripMargin
 
-  val sampleJsonUuidDistribution = """[{
+  val sampleJsonUuidDistributionArray = """[{
                               |  "name": "Name of the Feature",
                               |  "description": "Some additional description",
                               |  "tags": ["Team Name", "Or Service name"],
                               |  "state": "inProgress",
-                              |  "conditions": [{"uuidDistribution": ["5-10"]}]
+                              |  "conditions": [{"uuidDistribution": ["5-10", "10-20"]}]
                               |}]""".stripMargin
+
+  val sampleJsonUuidDistributionSingleRange = """[{
+                                          |  "name": "Name of the Feature",
+                                          |  "description": "Some additional description",
+                                          |  "tags": ["Team Name", "Or Service name"],
+                                          |  "state": "inProgress",
+                                          |  "conditions": [{"uuidDistribution": "5-10"}]
+                                          |}]""".stripMargin
 
   feature("Parsing of feature desc json") {
     scenario("Successfully parse sample json from story desc") {
@@ -54,8 +62,15 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.conditions.tail.head === BrowserCondition(Set(Browser.Firefox)))
     }
 
-    scenario("Successfully parse sample json with uuid distribution") {
-      val featureDescs = sampleJsonUuidDistribution.parseJson.convertTo[Seq[FeatureDescription]]
+    scenario("Successfully parse sample json with 2 uuid distributions") {
+      val featureDescs = sampleJsonUuidDistributionArray.parseJson.convertTo[Seq[FeatureDescription]]
+      // assert(featureDescs.head.conditions.size === 2)
+      assert(featureDescs.head.conditions.head ===
+        UuidDistributionCondition(Seq(5 to 10, 10 to 20), UuidDistributionCondition.defaultUuidToIntProjection))
+    }
+
+    scenario("Successfully parse sample json with uuid distribution single range") {
+      val featureDescs = sampleJsonUuidDistributionSingleRange.parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.head.conditions.size === 1)
       assert(featureDescs.head.conditions.head === UuidDistributionCondition(5 to 10))
     }

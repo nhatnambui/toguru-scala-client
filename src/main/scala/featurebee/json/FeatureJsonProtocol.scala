@@ -77,9 +77,12 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     def read(value: JsValue) = {
       value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
         value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers)}.orElse {
-          value.asJsObject.fields.get("uuidDistribution").collect { case JsArray(uuidRanges) => mapUuidRanges(uuidRanges)}
+          value.asJsObject.fields.get("uuidDistribution").collect {
+            case JsArray(uuidRanges) => mapUuidRanges(uuidRanges)
+            case jsSingleUuidRange => mapUuidRanges(Vector(jsSingleUuidRange))
+          }
         }
-      }.getOrElse(throw new DeserializationException(s"Unsupported condition(s): ${value.asJsObject.fields.keys}"))
+      }.getOrElse(throw new DeserializationException(s"Unsupported condition(s)/conditionFormat: ${value.asJsObject.fields.keys}"))
     }
   }
 
