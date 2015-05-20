@@ -17,7 +17,7 @@ notifications:
   - pricingtool@autoscout24.com
   slack:
     rooms:
-    - as24-tatsu:XJHB0uxN45HgTE4yZil25oQS
+      - as24-tatsu:XJHB0uxN45HgTE4yZil25oQS
     on_success: change
     on_failure: always
 deploy:
