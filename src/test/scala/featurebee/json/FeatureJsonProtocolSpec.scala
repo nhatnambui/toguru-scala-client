@@ -3,7 +3,7 @@ package featurebee.json
 import java.util.Locale
 
 import featurebee.ClientInfo.Browser
-import featurebee.impl.{BrowserCondition, CultureCondition, FeatureDescription}
+import featurebee.impl.{UuidDistributionCondition, BrowserCondition, CultureCondition, FeatureDescription}
 import org.scalatest.{FeatureSpec, FunSuite}
 import FeatureJsonProtocol._
 import spray.json.DefaultJsonProtocol
@@ -27,6 +27,14 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                      |  "conditions": [{"culture": ["en"]}, {"browser": ["Firefox"]}]
                      |}]""".stripMargin
 
+  val sampleJsonUuidDistribution = """[{
+                              |  "name": "Name of the Feature",
+                              |  "description": "Some additional description",
+                              |  "tags": ["Team Name", "Or Service name"],
+                              |  "state": "inProgress",
+                              |  "conditions": [{"uuidDistribution": ["5-10"]}]
+                              |}]""".stripMargin
+
   feature("Parsing of feature desc json") {
     scenario("Successfully parse sample json from story desc") {
       val featureDescs = sampleJsonChromeDE.parseJson.convertTo[Seq[FeatureDescription]]
@@ -44,6 +52,12 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.conditions.size === 2)
       assert(featureDescs.head.conditions.head === CultureCondition(Set(new Locale("en"))))
       assert(featureDescs.head.conditions.tail.head === BrowserCondition(Set(Browser.Firefox)))
+    }
+
+    scenario("Successfully parse sample json with uuid distribution") {
+      val featureDescs = sampleJsonUuidDistribution.parseJson.convertTo[Seq[FeatureDescription]]
+      assert(featureDescs.head.conditions.size === 1)
+      assert(featureDescs.head.conditions.head === UuidDistributionCondition(5 to 10))
     }
   }
 }

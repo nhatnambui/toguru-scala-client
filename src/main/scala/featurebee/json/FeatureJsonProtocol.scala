@@ -3,7 +3,7 @@ package featurebee.json
 import java.util.Locale
 
 import featurebee.ClientInfo.Browser
-import featurebee.impl.{BrowserCondition, CultureCondition, FeatureDescription, Condition}
+import featurebee.impl._
 import featurebee.impl.FeatureDescriptionSingleton.State.StateType
 import featurebee.impl.FeatureDescriptionSingleton.State
 import spray.json._
@@ -54,12 +54,31 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
       }
       BrowserCondition(brs.toSet)
     }
+
+    def mapUuidRanges(uuidRanges: Vector[JsValue]) = {
+
+      val rangeRegex = """(\d{1,2})-(\d{1,2})""".r
+
+      def parseToRange(s: String): Range = {
+          s match {
+            case rangeRegex(start, end) if start.toInt > 0 && end.toInt <= 100 => start.toInt to end.toInt
+            case other => throw new DeserializationException(s"Expected range (min=1, max=100) in format e.g. 5-10 but got $other")
+          }
+      }
+
+      val ranges = uuidRanges.toList.map {
+        case jsString: JsString => parseToRange(jsString.value)
+        case other => throw new DeserializationException(s"Uuid Distribution range should be a json string in the format e.g. '5-10' but is ${other.getClass}")
+      }
+      UuidDistributionCondition(ranges, UuidDistributionCondition.defaultUuidToIntProjection)
+    }
     
     def write(c: Condition) = throw new DeserializationException("Write not supported for conditions")
     def read(value: JsValue) = {
       value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
-        value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers)}
-        // TODO traffic dist
+        value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers)}.orElse {
+          value.asJsObject.fields.get("uuidDistribution").collect { case JsArray(uuidRanges) => mapUuidRanges(uuidRanges)}
+        }
       }.getOrElse(throw new DeserializationException(s"Unsupported condition(s): ${value.asJsObject.fields.keys}"))
     }
   }

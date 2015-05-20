@@ -47,12 +47,11 @@ class ConditionSpec extends FeatureSpec {
     }
   }
 
-  feature("default uuid to in projection") {
+  feature("default uuid to int projection") {
     val uuid = UUID.randomUUID()
+
     scenario(s"Random uuid ($uuid) gets projected") {
-      println(uuid)
       val projected = UuidDistributionCondition.defaultUuidToIntProjection(uuid)
-      println(projected)
       assert(projected > 0 && projected <= 100)
     }
   }
