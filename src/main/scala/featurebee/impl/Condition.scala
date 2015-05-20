@@ -1,14 +1,13 @@
 package featurebee.impl
 
-import java.util.Locale
+import java.math.BigInteger
+import java.util.{UUID, Locale}
 
 import featurebee.ClientInfo
 import featurebee.ClientInfo.Browser.Browser
 import featurebee.impl.LocaleSupport._
+import UuidDistributionCondition._
 
-/**
- * @author Chris Wewerka
- */
 sealed trait Condition {
   def applies(clientInfo: ClientInfo): Boolean
 }
@@ -37,7 +36,31 @@ case class CultureCondition(cultures: Set[Locale]) extends Condition {
   }
 }
 
-case class TrafficDistribution(percentage: Double) extends Condition {
-  // TODO implement
-  override def applies(clientInfo: ClientInfo): Boolean = ???
+/**
+ * A condition that takes the uuid from client info, applies f() to it and checks if it is inside the given range.
+ *
+ * @param f a function that projects an UUID to an Int in the range between 1 and 100
+ * @param range range from 1 to 100 (inclusive) that f(uuid) has to land in so that this condition will be true for the client uuid
+ */
+case class UuidDistributionCondition(range: Range, f: UUID => Int = defaultUuidToIntProjection) extends Condition {
+
+  if(range.head < 0 || range.last > 100) throw new IllegalArgumentException("Range should describe a range between 0 and 100 inclusive")
+
+  override def applies(clientInfo: ClientInfo): Boolean = {
+    clientInfo.uuid.exists {
+      uuid => range.contains(f(uuid))
+    }
+  }
+}
+
+object UuidDistributionCondition {
+  val defaultUuidToIntProjection: UUID => Int = {
+    (uuid) =>
+      val hibits = uuid.getMostSignificantBits
+      val  lobits = uuid.getLeastSignificantBits
+      val barrayHi = BigInteger.valueOf(hibits).toByteArray
+      val barrayLo = BigInteger.valueOf(lobits).toByteArray
+      val comb = barrayLo ++ barrayHi
+      Math.abs(new BigInteger(comb).mod(BigInteger.valueOf(100l)).intValue()) + 1
+  }
 }
