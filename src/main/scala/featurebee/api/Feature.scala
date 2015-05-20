@@ -5,9 +5,6 @@ import featurebee.impl.FeatureDescription
 
 import scala.annotation.implicitNotFound
 
-/**
- * @author Chris Wewerka
- */
 sealed trait Feature {
   /**
    * Executes the block if the feature is active

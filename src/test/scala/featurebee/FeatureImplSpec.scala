@@ -7,9 +7,6 @@ import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, BrowserCondition,
 import org.scalatest.FeatureSpec
 import org.scalatest.OptionValues._
 
-/**
- * @author Chris Wewerka
- */
 class FeatureImplSpec extends FeatureSpec {
    
   val emptyClientInfo = ClientInfoImpl()

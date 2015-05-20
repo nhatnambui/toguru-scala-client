@@ -6,9 +6,6 @@ import featurebee.ClientInfo.Browser._
 import featurebee.impl.{CultureCondition, BrowserCondition}
 import org.scalatest.FeatureSpec
 
-/**
- * @author Chris Wewerka
- */
 class BrowserConditionSpec extends FeatureSpec {
 
   feature("Browser conditions") {

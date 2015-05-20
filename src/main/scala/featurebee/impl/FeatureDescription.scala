@@ -3,9 +3,6 @@ package featurebee.impl
 import featurebee.impl.FeatureDescriptionSingleton.State.StateType
 import featurebee.impl.FeatureDescriptionSingleton.Tag
 
-/**
- * @author Chris Wewerka
- */
 case class FeatureDescription(name: String, description: String, tags: Set[Tag], state: StateType, conditions: Set[Condition])
 
 object FeatureDescriptionSingleton {
