@@ -18,7 +18,7 @@ notifications:
   slack:
     rooms:
       - as24-tatsu:XJHB0uxN45HgTE4yZil25oQS
-    on_success: change
+    on_success: never
     on_failure: always
 deploy:
   provider: releases
