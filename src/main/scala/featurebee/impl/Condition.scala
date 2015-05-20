@@ -4,6 +4,7 @@ import java.util.Locale
 
 import featurebee.ClientInfo
 import featurebee.ClientInfo.Browser.Browser
+import featurebee.impl.LocaleSupport._
 
 /**
  * @author Chris Wewerka
@@ -25,9 +26,18 @@ case class BrowserCondition(browsers: Set[Browser]) extends Condition {
 }
 
 case class CultureCondition(cultures: Set[Locale]) extends Condition {
-  override def applies(clientInfo: ClientInfo): Boolean = clientInfo.culture.exists(cultures.contains)
+  override def applies(clientInfo: ClientInfo): Boolean = {
+    cultures.exists {
+      activatingLocale => activatingLocale.lang match {
+        case None =>
+          clientInfo.culture.exists(clientLocale => activatingLocale.country == clientLocale.country)
+        case _ => clientInfo.culture.contains(activatingLocale)
+      }
+    }
+  }
 }
 
 case class TrafficDistribution(percentage: Double) extends Condition {
+  // TODO implement
   override def applies(clientInfo: ClientInfo): Boolean = ???
 }
