@@ -3,6 +3,7 @@ package featurebee.impl
 import java.util.Locale
 
 object LocaleSupport {
+
   implicit class RichLocale(locale: Locale) {
 
     def lang: Option[String] = locale.getLanguage match {
@@ -15,6 +16,8 @@ object LocaleSupport {
       case country => Some(country) // always uppercase
     }
   }
+
+
 }
 
 
