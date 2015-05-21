@@ -21,9 +21,10 @@ class FeatureImplSpec extends FeatureSpec {
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
 
-    scenario("Feature is not active when no condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Set())
-      assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
+    scenario("FeatureImpl throws IllegalArgumentException when no condition is used") {
+      intercept[IllegalArgumentException] {
+        FeatureDescription("name", "desc", tags = Set(), Set())
+      }
     }
 
     scenario("Feature is not active when not all conditions are met") {
