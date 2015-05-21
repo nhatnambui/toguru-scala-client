@@ -2,6 +2,7 @@ package featurebee.api
 
 import featurebee.ClientInfo
 import featurebee.impl.FeatureDescription
+import featurebee.impl.FeatureDescriptionSingleton.State
 
 import scala.annotation.implicitNotFound
 
@@ -45,9 +46,12 @@ object AlwaysOffFeature extends BaseFeature {
 class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
 
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
-    // TODO take state into account
     clientInfo.forcedFeatureToogle(desc.name).getOrElse {
-      desc.conditions.forall(cond => cond.applies(clientInfo))
+      desc.state match {
+        case State.InProgress => false
+        case State.Experimental => desc.conditions.forall(cond => cond.applies(clientInfo))
+        case State.Released => true
+      }
     }
   }
 }

@@ -12,18 +12,28 @@ class FeatureImplSpec extends FeatureSpec {
   val emptyClientInfo = ClientInfoImpl()
   
   feature("Standard feature activation") {
-    scenario("Feature is active when using always on condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOnCondition))
+    scenario("Feature is active when state is experimental and always on condition is used") {
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Experimental, Set(AlwaysOnCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === true)
     }
 
-    scenario("Feature is not active when using always off condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOffCondition))
+    scenario("Feature is not active when state is experimental and always off condition is used") {
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Experimental, Set(AlwaysOffCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
 
-    scenario("Feature is not active when not all conditions are met") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOffCondition, AlwaysOnCondition))
+    scenario("Feature is not active when state is experimental and not all conditions are met") {
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Experimental, Set(AlwaysOffCondition, AlwaysOnCondition))
+      assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
+    }
+
+    scenario("Feature is active when state is released") {
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Released, Set(AlwaysOffCondition))
+      assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === true)
+    }
+
+    scenario("Feature is not active when state is in progress") {
+      val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOnCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
   }
@@ -37,7 +47,7 @@ class FeatureImplSpec extends FeatureSpec {
   }
 
   feature("Using block convenience methods in Feature for chrome only feature")  {
-    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(BrowserCondition(Set(Chrome))))
+    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(), Experimental, Set(BrowserCondition(Set(Chrome))))
     val feature = new FeatureImpl(featureDescriptionChromeOnly)
 
     scenario("Feature block for chrome clients is executed") {
@@ -65,6 +75,5 @@ class FeatureImplSpec extends FeatureSpec {
       assert(result.isEmpty)
       assert(evaluated === false)
     }
-
   }
 }
