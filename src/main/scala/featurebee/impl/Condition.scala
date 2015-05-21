@@ -4,7 +4,7 @@ import java.math.BigInteger
 import java.util.{UUID, Locale}
 
 import featurebee.ClientInfo
-import featurebee.ClientInfo.Browser.Browser
+import featurebee.ClientInfo.UserAgent
 import featurebee.impl.LocaleSupport._
 import UuidDistributionCondition._
 
@@ -20,8 +20,11 @@ case object AlwaysOffCondition extends Condition {
   override def applies(clientInfo: ClientInfo): Boolean = false
 }
 
-case class BrowserCondition(browsers: Set[Browser]) extends Condition {
-  override def applies(clientInfo: ClientInfo): Boolean = clientInfo.browser.exists(browsers.contains)
+/**
+ * @param userAgentFragments one (only one, not all!) of this fragments should be contained in the user agent header to make this condition apply.
+ */
+case class UserAgentCondition(userAgentFragments: Set[UserAgent]) extends Condition {
+  override def applies(clientInfo: ClientInfo): Boolean = clientInfo.userAgent.exists(ua => userAgentFragments.exists(uaFrag => ua.contains(uaFrag)))
 }
 
 case class CultureCondition(cultures: Set[Locale]) extends Condition {

@@ -1,8 +1,7 @@
 package featurebee
 
-import featurebee.ClientInfo.Browser._
 import featurebee.api.FeatureImpl
-import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, BrowserCondition, FeatureDescription}
+import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, UserAgentCondition, FeatureDescription}
 import org.scalatest.FeatureSpec
 import org.scalatest.OptionValues._
 
@@ -42,11 +41,12 @@ class FeatureImplSpec extends FeatureSpec {
   }
 
   feature("Using block convenience methods in Feature for chrome only feature")  {
-    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(), Set(BrowserCondition(Set(Chrome))))
+    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(),
+      Set(UserAgentCondition(Set("Chrome"))))
     val feature = new FeatureImpl(featureDescriptionChromeOnly)
 
     scenario("Feature block for chrome clients is executed") {
-      implicit val clientInfo = ClientInfoImpl(Some(Chrome))
+      implicit val clientInfo = ClientInfoImpl(Some("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"))
       var evaluated = false
 
       val result = feature.ifActive {
@@ -59,7 +59,7 @@ class FeatureImplSpec extends FeatureSpec {
     }
 
     scenario("Feature block for non chrome clients is not executed") {
-      implicit val clientInfo = ClientInfoImpl(Some(Firefox))
+      implicit val clientInfo = ClientInfoImpl(Some("Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0"))
       var evaluated = false
 
       val result = feature.ifActive {

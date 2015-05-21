@@ -14,6 +14,6 @@ The FeatureBee Server returns a list of all defined features.
       "activation": [{"culture": ["de-DE"]}]
     }]
 
-Conditions is an array of type and values. Supported types are "default", "culture", "browser" and "trafficDistribution". 
+Conditions is an array of type and values. Supported types are "default", "culture", "userAgentFragments" and "trafficDistribution". 
 Each condition can have its own format how the values should look like. Each condition could have multiple values. 
 All conditions have to be fulfilled (logical AND). If no conditions are defined the feature is off.

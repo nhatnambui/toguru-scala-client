@@ -1,13 +1,13 @@
 package featurebee
 
 import java.util.{UUID, Locale}
-import ClientInfo.Browser.Browser
+import featurebee.ClientInfo.UserAgent
 import featurebee.api.Feature
 import Feature.FeatureName
 
 trait ClientInfo {
 
-  def browser: Option[Browser]
+  def userAgent: Option[UserAgent]
   def culture: Option[Locale]
 
   /** identifies the client/the request */
@@ -16,13 +16,9 @@ trait ClientInfo {
   val forcedFeatureToggle: FeatureName => Option[Boolean]
 }
 
-case class ClientInfoImpl(browser: Option[Browser] = None, culture: Option[Locale] = None, uuid: Option[UUID] = None,
+case class ClientInfoImpl(userAgent: Option[UserAgent] = None, culture: Option[Locale] = None, uuid: Option[UUID] = None,
                           forcedFeatureToggle: FeatureName => Option[Boolean] = (_) => None) extends ClientInfo
 
 object ClientInfo {
-
-  object Browser extends Enumeration {
-    type Browser = Value
-    val Chrome, Ie, Firefox, Safari, Other = Value
-  }
+  type UserAgent = String
 }

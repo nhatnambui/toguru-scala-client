@@ -2,7 +2,6 @@ package featurebee.impl
 
 import java.util.{UUID, Locale}
 
-import featurebee.ClientInfo.Browser._
 import featurebee.ClientInfoImpl
 import org.scalatest.FeatureSpec
 
@@ -11,13 +10,13 @@ class ConditionSpec extends FeatureSpec {
   feature("Browser conditions") {
 
     scenario("Browser condition returns true if browser matches") {
-      val clientInfo = ClientInfoImpl(Some(Chrome))
-      assert(BrowserCondition(Set(Chrome)).applies(clientInfo))
+      val clientInfo = ClientInfoImpl(Some("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"))
+      assert(UserAgentCondition(Set("Chrome")).applies(clientInfo))
     }
 
     scenario("Browser condition returns false if browser does not match") {
-      val clientInfo = ClientInfoImpl(Some(Chrome))
-      assert(BrowserCondition(Set(Ie)).applies(clientInfo) === false)
+      val clientInfo = ClientInfoImpl(Some("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"))
+      assert(UserAgentCondition(Set("MSIE")).applies(clientInfo) === false)
     }
   }
 

@@ -2,8 +2,7 @@ package featurebee.json
 
 import java.util.Locale
 
-import featurebee.ClientInfo.Browser
-import featurebee.impl.{BrowserCondition, CultureCondition, FeatureDescription, UuidDistributionCondition}
+import featurebee.impl.{UserAgentCondition, CultureCondition, FeatureDescription, UuidDistributionCondition}
 import featurebee.json.FeatureJsonProtocol._
 import org.scalatest.FeatureSpec
 import spray.json._
@@ -14,14 +13,14 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                      |  "name": "Name of the Feature",
                      |  "description": "Some additional description",
                      |  "tags": ["Team Name", "Or Service name"],
-                     |  "activation": [{"culture": ["de-DE"]}, {"browser": ["Chrome"]}]
+                     |  "activation": [{"culture": ["de-DE"]}, {"userAgentFragments": ["Chrome"]}]
                      |}]""".stripMargin
 
   val sampleJsonFirefoxEN = """[{
                      |  "name": "Name of the Feature",
                      |  "description": "Some additional description",
                      |  "tags": ["Team Name", "Or Service name"],
-                     |  "activation": [{"culture": ["en"]}, {"browser": ["Firefox"]}]
+                     |  "activation": [{"culture": ["en"]}, {"userAgentFragments": ["Firefox"]}]
                      |}]""".stripMargin
 
   val sampleJsonUuidDistributionArray = """[{
@@ -45,7 +44,7 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.name === "Name of the Feature")
       assert(featureDescs.head.activation.size === 2)
       assert(featureDescs.head.activation.head === CultureCondition(Set(new Locale("de", "DE"))))
-      assert(featureDescs.head.activation.tail.head === BrowserCondition(Set(Browser.Chrome)))
+      assert(featureDescs.head.activation.tail.head === UserAgentCondition(Set("Chrome")))
     }
 
     scenario("Successfully parse sample json with language only locale") {
@@ -54,7 +53,7 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.name === "Name of the Feature")
       assert(featureDescs.head.activation.size === 2)
       assert(featureDescs.head.activation.head === CultureCondition(Set(new Locale("en"))))
-      assert(featureDescs.head.activation.tail.head === BrowserCondition(Set(Browser.Firefox)))
+      assert(featureDescs.head.activation.tail.head === UserAgentCondition(Set("Firefox")))
     }
 
     scenario("Successfully parse sample json with 2 uuid distributions") {

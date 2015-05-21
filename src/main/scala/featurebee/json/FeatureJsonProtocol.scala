@@ -2,7 +2,6 @@ package featurebee.json
 
 import java.util.Locale
 
-import featurebee.ClientInfo.Browser
 import featurebee.impl._
 import spray.json._
 
@@ -11,8 +10,6 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
 
   implicit object ConditionJsonFormat extends RootJsonFormat[Condition] {
 
-    val allBrowsers = Browser.values.toList
-    
     def mapLocales(locales: Vector[JsValue]) = {
       val jLocales = locales.toList.map {
         case jsString: JsString =>
@@ -27,13 +24,12 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
       CultureCondition(jLocales.toSet)
     }
 
-    def mapBrowsers(browsers: Vector[JsValue]) = {
-      val brs = browsers.toList.map {
-        case jsStringBrowser: JsString =>
-          allBrowsers.find(br => br.toString.toLowerCase == jsStringBrowser.value.toLowerCase).getOrElse(Browser.Other)
+    def mapUserAgentFragments(userAgentFrags: Vector[JsValue]) = {
+      val userAgentsFragments = userAgentFrags.toList.map {
+        case JsString(userAgentFrag) => userAgentFrag
         case other => throw new DeserializationException(s"Browser should be a json string but is ${other.getClass}")
       }
-      BrowserCondition(brs.toSet)
+      UserAgentCondition(userAgentsFragments.toSet)
     }
 
     def mapUuidRanges(uuidRanges: Vector[JsValue]) = {
@@ -58,7 +54,7 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     def read(value: JsValue) = {
       value.asJsObject.fields.get("default").collect { case JsBoolean(staticActivate) => if(staticActivate) AlwaysOnCondition else AlwaysOffCondition }.orElse {
         value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
-          value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers) }.orElse {
+          value.asJsObject.fields.get("userAgentFragments").collect { case JsArray(userAgentFragements) => mapUserAgentFragments(userAgentFragements) }.orElse {
             value.asJsObject.fields.get("trafficDistribution").collect {
               case JsArray(uuidRanges) => mapUuidRanges(uuidRanges)
               case jsSingleUuidRange => mapUuidRanges(Vector(jsSingleUuidRange))
