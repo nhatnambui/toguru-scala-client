@@ -4,7 +4,7 @@ name := "featurebee"
 organization := "com.autoscout24"
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
-version in ThisBuild := "1." + Properties.envOrElse("TRAVIS_BUILD_NUMBER", "0-SNAPSHOT")
+version in ThisBuild := "1.0." + Properties.envOrElse("TRAVIS_BUILD_NUMBER", "0-SNAPSHOT")
 
 scalaVersion := "2.11.6"
 
