@@ -1,17 +1,22 @@
 language: scala
+
 cache:
   directories:
   - "$HOME/.m2/repository"
   - "$HOME/.sbt"
   - "$HOME/.ivy2"
+
 scala:
 - 2.11.6
+
 jdk:
 - oraclejdk8
+
 script:
 - sbt test package
 # Trick to avoid unnecessary cache updates
 - find $HOME/.sbt -name "*.lock" | xargs rm
+
 notifications:
   email:
   - pricingtool@autoscout24.com
@@ -20,10 +25,10 @@ notifications:
       - as24-tatsu:XJHB0uxN45HgTE4yZil25oQS
     on_success: change
     on_failure: always
+
 deploy:
   provider: releases
-  api_key:
-    secure: Ihy+JorP/RucyryKxuJSXeX3lIpkymO5qrFTsK4l23uJ0mUe/oasteLAs28vazAtsekC514mZwat+XANxGXC43C1QHsrj3vahWaxGfXKieyAIqb4fH4TWmVkG4FoW2FQlldV+jR47+Pzb8Y+IjXVSt1ypE0LcOz1+4FGzzl8lNhBO6C2LN+oz7EXs/Jpy/RxRbj0sdmetgU+yhFnyDVCHGbd4SLufveTuXE7MBEViHOJ7189psdIq+CG+3+HENJBIAy/emh9OXnYQorZPfBVTor3JFCzWYegoychPNm1WLMtYqGTmj96t+LkFx7iQxRhDFURDFLCcoCuDq1cP3XK4yZ7ptgRA5545AJOhTYS7vkbXybre4liJZQG8sGO5oSOMxYKUqS5S6Qzvn7hgxQ7pJ9KMYZSihxpj/E7kz37XnZbDxgejL39k5bAK5xgrZmy7MOnyZkBExKNyZ/q2FlZ9ZmQiW4eCA+Pej05HwuzI0edSC79WowAyWeDn4TFQmTnD6Bbf/+FW85BY8uS/axqPfNeRUTw6CNPuiX40hf8hyK7piEQX6F7GqnXL641sTHq/x6x8MvX5uNvK+tt0vOuaIwxRvUtqGDGC9/N5Yvb88jC3DpakNG4zd3uBbfx/HSFyCcEDhpBr2PRq89b89gGCHfMKPR6YmCVyP7JJ7U3qMU=
+  api_key: $GITHUB_APIKEY
   file: target/scala-2.11/featurebee_2.11-1.$TRAVIS_BUILD_NUMBER.jar
   skip_cleanup: true
   on:
