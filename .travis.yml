@@ -28,5 +28,5 @@ notifications:
 
 after_success:
   - >
-      sh "$TRAVIS_BUILD_DIR/.travis.credentials.sh" &&
+      sh "$TRAVIS_BUILD_DIR/travis.credentials.sh" &&
       sbt publish
