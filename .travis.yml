@@ -26,11 +26,7 @@ notifications:
     on_success: change
     on_failure: always
 
-deploy:
-  provider: releases
-  api_key: $GITHUB_APIKEY
-  file: target/scala-2.11/featurebee_2.11-1.$TRAVIS_BUILD_NUMBER.jar
-  skip_cleanup: true
-  on:
-    tags: true
-    repo: AutoScout24/featurebee-scala
+after_success:
+  - >
+      sh "$TRAVIS_BUILD_DIR/.travis.credentials.sh" &&
+      sbt publish
