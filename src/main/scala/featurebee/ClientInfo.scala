@@ -13,11 +13,11 @@ trait ClientInfo {
   /** identifies the client/the request */
   def uuid: Option[UUID]
 
-  val forcedFeatureToogle: FeatureName => Option[Boolean]
+  val forcedFeatureToggle: FeatureName => Option[Boolean]
 }
 
 case class ClientInfoImpl(browser: Option[Browser] = None, culture: Option[Locale] = None, uuid: Option[UUID] = None,
-                          forcedFeatureToogle: FeatureName => Option[Boolean] = (_) => None) extends ClientInfo
+                          forcedFeatureToggle: FeatureName => Option[Boolean] = (_) => None) extends ClientInfo
 
 object ClientInfo {
 

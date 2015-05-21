@@ -46,7 +46,7 @@ object AlwaysOffFeature extends BaseFeature {
 class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
 
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
-    clientInfo.forcedFeatureToogle(desc.name).getOrElse {
+    clientInfo.forcedFeatureToggle(desc.name).getOrElse {
       desc.state match {
         case State.InProgress => false
         case State.Experimental => desc.conditions.forall(cond => cond.applies(clientInfo))

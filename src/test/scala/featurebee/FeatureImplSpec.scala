@@ -40,7 +40,7 @@ class FeatureImplSpec extends FeatureSpec {
 
   feature("God mode overriding of feature settings") {
     scenario("Overriding has precedence") {
-      val clientInfoForcedAlwaysOn = ClientInfoImpl(forcedFeatureToogle = (_) => Some(true))
+      val clientInfoForcedAlwaysOn = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
       val featureDescription = FeatureDescription("name", "desc", tags = Set(), InProgress, Set(AlwaysOffCondition))
       assert(new FeatureImpl(featureDescription).isActive(clientInfoForcedAlwaysOn) === true)
     }
