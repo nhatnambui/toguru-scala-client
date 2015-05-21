@@ -46,8 +46,8 @@ class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
 
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
     clientInfo.forcedFeatureToggle(desc.name).getOrElse {
-      if (desc.conditions.isEmpty) return false
-      desc.conditions.forall(cond => cond.applies(clientInfo))
+      if (desc.activation.isEmpty) return false
+      desc.activation.forall(cond => cond.applies(clientInfo))
     }
   }
 }

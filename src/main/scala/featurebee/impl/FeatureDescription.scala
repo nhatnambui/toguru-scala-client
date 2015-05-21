@@ -2,7 +2,7 @@ package featurebee.impl
 
 import featurebee.impl.FeatureDescriptionSingleton.Tag
 
-case class FeatureDescription(name: String, description: String, tags: Set[Tag], conditions: Set[Condition])
+case class FeatureDescription(name: String, description: String, tags: Set[Tag], activation: Set[Condition])
 
 object FeatureDescriptionSingleton {
 

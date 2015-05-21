@@ -3,5 +3,5 @@
   "description": "Some additional description",
   "tags": ["Team Name", "Or Service name"],
   "state": "inProgress",
-  "conditions": [{"culture": ["de-DE"]}]
+  "activation": [{"culture": ["de-DE"]}]
 }]

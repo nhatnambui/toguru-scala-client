@@ -56,11 +56,13 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     
     def write(c: Condition) = throw new DeserializationException("Write not supported for conditions")
     def read(value: JsValue) = {
-      value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
-        value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers)}.orElse {
-          value.asJsObject.fields.get("uuidDistribution").collect {
-            case JsArray(uuidRanges) => mapUuidRanges(uuidRanges)
-            case jsSingleUuidRange => mapUuidRanges(Vector(jsSingleUuidRange))
+      value.asJsObject.fields.get("default").collect { case JsBoolean(staticActivate) => if(staticActivate) AlwaysOnCondition else AlwaysOffCondition }.orElse {
+        value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
+          value.asJsObject.fields.get("browser").collect { case JsArray(browsers) => mapBrowsers(browsers) }.orElse {
+            value.asJsObject.fields.get("trafficDistribution").collect {
+              case JsArray(uuidRanges) => mapUuidRanges(uuidRanges)
+              case jsSingleUuidRange => mapUuidRanges(Vector(jsSingleUuidRange))
+            }
           }
         }
       }.getOrElse(throw new DeserializationException(s"Unsupported condition(s)/conditionFormat: ${value.asJsObject.fields.keys}"))
