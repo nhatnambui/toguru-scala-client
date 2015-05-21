@@ -2,7 +2,6 @@ package featurebee.api
 
 import featurebee.ClientInfo
 import featurebee.impl.FeatureDescription
-import featurebee.impl.FeatureDescriptionSingleton.State
 
 import scala.annotation.implicitNotFound
 
@@ -47,11 +46,7 @@ class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
 
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
     clientInfo.forcedFeatureToggle(desc.name).getOrElse {
-      desc.state match {
-        case State.InProgress => false
-        case State.Experimental => desc.conditions.forall(cond => cond.applies(clientInfo))
-        case State.Released => true
-      }
+        desc.conditions.forall(cond => cond.applies(clientInfo))
     }
   }
 }

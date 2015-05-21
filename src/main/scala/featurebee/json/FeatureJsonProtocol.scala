@@ -4,29 +4,10 @@ import java.util.Locale
 
 import featurebee.ClientInfo.Browser
 import featurebee.impl._
-import featurebee.impl.FeatureDescriptionSingleton.State.StateType
-import featurebee.impl.FeatureDescriptionSingleton.State
 import spray.json._
-import DefaultJsonProtocol._
 
 
 object FeatureJsonProtocol extends DefaultJsonProtocol {
-
-  implicit object StateJsonFormat extends RootJsonFormat[StateType] {
-    val stateEnums = State.values.toList
-    override def write(obj: StateType): JsValue = throw new DeserializationException("Write not supported for state")
-    override def read(json: JsValue): StateType = {
-      stateEnums.find {
-        st =>
-          json match {
-            case jsStringState: JsString =>
-              val state = st.toString.toLowerCase
-              state.toLowerCase == jsStringState.value.toLowerCase
-            case _ => throw new DeserializationException(s"State has to be a json string: $json")
-          }
-      }.getOrElse(throw new DeserializationException(s"Unknown state ${json.toString()}"))
-    }
-  }
 
   implicit object ConditionJsonFormat extends RootJsonFormat[Condition] {
 
@@ -86,5 +67,5 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val featureDescriptionFormat = jsonFormat5(FeatureDescription)
+  implicit val featureDescriptionFormat = jsonFormat4(FeatureDescription)
 }

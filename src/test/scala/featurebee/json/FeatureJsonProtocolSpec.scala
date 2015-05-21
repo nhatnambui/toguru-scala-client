@@ -3,10 +3,9 @@ package featurebee.json
 import java.util.Locale
 
 import featurebee.ClientInfo.Browser
-import featurebee.impl.{UuidDistributionCondition, BrowserCondition, CultureCondition, FeatureDescription}
-import org.scalatest.{FeatureSpec, FunSuite}
-import FeatureJsonProtocol._
-import spray.json.DefaultJsonProtocol
+import featurebee.impl.{BrowserCondition, CultureCondition, FeatureDescription, UuidDistributionCondition}
+import featurebee.json.FeatureJsonProtocol._
+import org.scalatest.FeatureSpec
 import spray.json._
 
 class FeatureJsonProtocolSpec extends FeatureSpec {
@@ -15,7 +14,6 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                      |  "name": "Name of the Feature",
                      |  "description": "Some additional description",
                      |  "tags": ["Team Name", "Or Service name"],
-                     |  "state": "inProgress",
                      |  "conditions": [{"culture": ["de-DE"]}, {"browser": ["Chrome"]}]
                      |}]""".stripMargin
 
@@ -23,7 +21,6 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                      |  "name": "Name of the Feature",
                      |  "description": "Some additional description",
                      |  "tags": ["Team Name", "Or Service name"],
-                     |  "state": "inProgress",
                      |  "conditions": [{"culture": ["en"]}, {"browser": ["Firefox"]}]
                      |}]""".stripMargin
 
@@ -31,7 +28,6 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                               |  "name": "Name of the Feature",
                               |  "description": "Some additional description",
                               |  "tags": ["Team Name", "Or Service name"],
-                              |  "state": "inProgress",
                               |  "conditions": [{"uuidDistribution": ["5-10", "10-20"]}]
                               |}]""".stripMargin
 
@@ -39,7 +35,6 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                                           |  "name": "Name of the Feature",
                                           |  "description": "Some additional description",
                                           |  "tags": ["Team Name", "Or Service name"],
-                                          |  "state": "inProgress",
                                           |  "conditions": [{"uuidDistribution": "5-10"}]
                                           |}]""".stripMargin
 
