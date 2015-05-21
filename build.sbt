@@ -2,6 +2,7 @@ import scala.util.Properties
 
 name := "featurebee"
 organization := "com.autoscout24"
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 version in ThisBuild := "1." + Properties.envOrElse("TRAVIS_BUILD_NUMBER", "0-SNAPSHOT")
 
