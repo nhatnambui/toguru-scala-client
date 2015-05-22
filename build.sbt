@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "2.0.8-beta" % "test"
 )
 
-ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 80
+ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 90
 
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
 
