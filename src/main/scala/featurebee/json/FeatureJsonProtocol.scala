@@ -56,7 +56,12 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     
     def write(c: Condition) = throw new DeserializationException("Write not supported for conditions")
     def read(value: JsValue) = {
-      value.asJsObject.fields.get("default").collect { case JsBoolean(staticActivate) => if(staticActivate) AlwaysOnCondition else AlwaysOffCondition }.orElse {
+      value.asJsObject.fields.get("default").collect {
+        case JsBoolean(staticActivate) => if(staticActivate) AlwaysOnCondition else AlwaysOffCondition
+        case JsString(activationString) if activationString.toLowerCase == "on" => AlwaysOnCondition
+        case JsString(activationString) if activationString.toLowerCase == "off" => AlwaysOffCondition
+        case other => throw new DeserializationException(s"Default condition supports json boolean or string values (on,off): ${value.asJsObject.fields.keys} but it is: $other")
+      }.orElse {
         value.asJsObject.fields.get("culture").collect { case JsArray(locales) => mapLocales(locales) }.orElse {
           value.asJsObject.fields.get("userAgentFragments").collect { case JsArray(userAgentFragements) => mapUserAgentFragments(userAgentFragements) }.orElse {
             value.asJsObject.fields.get("trafficDistribution").collect {
