@@ -10,17 +10,21 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
 
   implicit object ConditionJsonFormat extends RootJsonFormat[Condition] {
 
+    def mapLocale(localeAsString: String): Locale = {
+      localeAsString.split('-').toList match {
+        case lang::country::Nil => new Locale(lang, country)
+        case lang::Nil if lang.toLowerCase == lang => new Locale(lang)
+        case country::Nil if country.toUpperCase == country => new Locale("", country)
+        case _ => throw new DeserializationException(s"Invalid locale string in feature description: $localeAsString")
+      }
+    }
+
     def mapLocales(locales: Vector[JsValue]) = {
       val jLocales = locales.toList.map {
-        case jsString: JsString =>
-          val splitted = jsString.value.split('-')
-          splitted.length match {
-            case 2 => new Locale(splitted(0), splitted(1))
-            case 1 => new Locale(splitted(0))
-            case _ => throw new DeserializationException(s"Invalid locale string in feature description: ${jsString.value}")
-          }
+        case jsString: JsString => jsString.value
         case other => throw new DeserializationException(s"Culture should be a json string but is ${other.getClass}")
-      }
+      }.map(mapLocale)
+
       CultureCondition(jLocales.toSet)
     }
 

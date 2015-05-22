@@ -6,6 +6,7 @@ import featurebee.impl.{UserAgentCondition, CultureCondition, FeatureDescription
 import featurebee.json.FeatureJsonProtocol._
 import org.scalatest.FeatureSpec
 import spray.json._
+import org.scalatest.OptionValues._
 
 class FeatureJsonProtocolSpec extends FeatureSpec {
 
@@ -67,6 +68,24 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       val featureDescs = sampleJsonUuidDistributionSingleRange.parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.head.activation.size === 1)
       assert(featureDescs.head.activation.head === UuidDistributionCondition(96 to 100))
+    }
+  }
+
+  feature("Locale string mapping") {
+    scenario("Map locale de-DE") {
+      val l = FeatureJsonProtocol.ConditionJsonFormat.mapLocale("de-DE")
+      assert(l === Locale.GERMANY)
+    }
+
+    scenario("Map lang only locale de") {
+      val l = FeatureJsonProtocol.ConditionJsonFormat.mapLocale("de")
+      assert(l === Locale.GERMAN)
+    }
+
+    scenario("Map country only locale DE") {
+      import featurebee.impl.LocaleSupport._
+      val l = FeatureJsonProtocol.ConditionJsonFormat.mapLocale("DE")
+      assert(l.country.value === "DE")
     }
   }
 }
