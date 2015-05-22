@@ -1,9 +1,10 @@
 package featurebee
 
-import featurebee.api.FeatureImpl
+import featurebee.api._
 import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, UserAgentCondition, FeatureDescription}
 import org.scalatest.FeatureSpec
 import org.scalatest.OptionValues._
+import org.mockito.Mockito._
 
 class FeatureImplSpec extends FeatureSpec {
    
@@ -45,7 +46,7 @@ class FeatureImplSpec extends FeatureSpec {
       Set(UserAgentCondition(Set("Chrome"))))
     val feature = new FeatureImpl(featureDescriptionChromeOnly)
 
-    scenario("Feature block for chrome clients is executed") {
+    scenario("Feature block 'ifActive' for chrome clients is executed") {
       implicit val clientInfo = ClientInfoImpl(Some("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"))
       var evaluated = false
 
@@ -58,17 +59,41 @@ class FeatureImplSpec extends FeatureSpec {
       assert(evaluated === true)
     }
 
-    scenario("Feature block for non chrome clients is not executed") {
+    scenario("Feature block 'notActive' for non chrome clients is executed") {
       implicit val clientInfo = ClientInfoImpl(Some("Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0"))
       var evaluated = false
 
-      val result = feature.ifActive {
+      val result = feature.ifNotActive {
         evaluated = true
         "feature block has been run"
       }
 
-      assert(result.isEmpty)
-      assert(evaluated === false)
+      assert(result.value === "feature block has been run")
+      assert(evaluated === true)
+    }
+  }
+
+  feature("Fetching features from Registry") {
+    scenario("..via apply() works") {
+      val featureName: String = "feature-1"
+
+      val featureReg = mock(classOf[FeatureRegistry])
+      val feature = mock(classOf[Feature])
+      when(featureReg.feature(featureName)).thenReturn(Some(feature))
+
+      assert(Feature(featureName)(featureReg) === Some(feature))
+    }
+  }
+
+  feature("AlwaysOn/Off Feature") {
+    scenario("AlwaysOnFeature always activates feature") {
+      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(false))
+      assert(AlwaysOnFeature.isActive(clientInfo) === true)
+    }
+
+    scenario("AlwaysOffFeature always deactivates feature") {
+      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
+      assert(AlwaysOffFeature.isActive(clientInfo) === false)
     }
   }
 }
