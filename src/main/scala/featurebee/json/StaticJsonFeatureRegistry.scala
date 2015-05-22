@@ -14,7 +14,7 @@ class StaticJsonFeatureRegistry(json: String) extends FeatureRegistry {
     map(desc => desc.name -> new FeatureImpl(desc)).toMap
   
   override def feature(name: String): Option[Feature] = features.get(name)
-  override def allFeatures: Set[Feature] = features.values.toSet
+  override def allFeatures: Set[(FeatureName, Feature)] = features.toSet
 }
 
 object StaticJsonFeatureRegistry {
