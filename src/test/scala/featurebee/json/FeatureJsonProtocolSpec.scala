@@ -69,6 +69,12 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.activation.size === 1)
       assert(featureDescs.head.activation.head === UuidDistributionCondition(96 to 100))
     }
+
+    scenario("Invalid range throws DeserializationEx") {
+      intercept[DeserializationException] {
+        FeatureJsonProtocol.ConditionJsonFormat.parseToRange("10-5")
+      }
+    }
   }
 
   feature("Locale string mapping") {
@@ -86,6 +92,12 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       import featurebee.impl.LocaleSupport._
       val l = FeatureJsonProtocol.ConditionJsonFormat.mapLocale("DE")
       assert(l.country.value === "DE")
+    }
+
+    scenario("Invalid locale string causes DeserializationEx") {
+      intercept[DeserializationException] {
+        FeatureJsonProtocol.ConditionJsonFormat.mapLocale("de_DE")
+      }
     }
   }
 }

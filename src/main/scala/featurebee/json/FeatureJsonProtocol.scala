@@ -5,6 +5,8 @@ import java.util.Locale
 import featurebee.impl._
 import spray.json._
 
+import scala.util.matching.Regex
+
 
 object FeatureJsonProtocol extends DefaultJsonProtocol {
 
@@ -36,17 +38,15 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
       UserAgentCondition(userAgentsFragments.toSet)
     }
 
-    def mapUuidRanges(uuidRanges: Vector[JsValue]) = {
-
-      val rangeRegex = """(\d{1,3})-(\d{1,3})""".r
-
-      def parseToRange(s: String): Range = {
-          s match {
-            case rangeRegex(start, end) if start.toInt > 0 && end.toInt <= 100 => start.toInt to end.toInt
-            case other => throw new DeserializationException(s"Expected range (min=1, max=100) in format e.g. 5-10 but got $other")
-          }
+    private val rangeRegex = """(\d{1,3})-(\d{1,3})""".r
+    def parseToRange(s: String): Range = {
+      s match {
+        case rangeRegex(start, end) if start.toInt > 0 && end.toInt <= 100 && start.toInt <= end.toInt => start.toInt to end.toInt
+        case other => throw new DeserializationException(s"Expected range (min=1, max=100) in format e.g. 5-10 but got $other")
       }
+    }
 
+    def mapUuidRanges(uuidRanges: Vector[JsValue]) = {
       val ranges = uuidRanges.toList.map {
         case jsString: JsString => parseToRange(jsString.value)
         case other => throw new DeserializationException(s"Uuid Distribution range should be a json string in the format e.g. '5-10' but is ${other.getClass}")
