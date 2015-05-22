@@ -70,28 +70,43 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.activation.head === UuidDistributionCondition(96 to 100))
     }
 
-    scenario("Parsing of feature desc with default condition with boolean") {
-      val sampleJsonDefaultActivation = """[{
-      |  "name": "Name of the Feature",
-      |  "description": "Some additional description",
-      |  "tags": ["Team Name", "Or Service name"],
-      |  "activation": [{"default": true}]
-      |}]""".stripMargin
-      val featureDescs = sampleJsonDefaultActivation.parseJson.convertTo[Seq[FeatureDescription]]
+    scenario("Invalid range throws DeserializationEx") {
+      intercept[DeserializationException] {
+        FeatureJsonProtocol.ConditionJsonFormat.parseToRange("10-5")
+      }
+    }
+  }
+
+  feature("Default condition mapping") {
+    def sampleJsonDefaultActivation(defaultCondValue: String) = s"""[{
+                                        |  "name": "Name of the Feature",
+                                        |  "description": "Some additional description",
+                                        |  "tags": ["Team Name", "Or Service name"],
+                                        |  "activation": [{"default": $defaultCondValue}]
+                                        |}]""".stripMargin
+
+    scenario("Parsing of feature desc with default condition with boolean set to true") {
+      val featureDescs = sampleJsonDefaultActivation("true").parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.size === 1)
       assert(featureDescs.head.activation === Set(AlwaysOnCondition))
     }
 
+    scenario("Parsing of feature desc with default condition with boolean set to false") {
+      val featureDescs = sampleJsonDefaultActivation("false").parseJson.convertTo[Seq[FeatureDescription]]
+      assert(featureDescs.size === 1)
+      assert(featureDescs.head.activation === Set(AlwaysOffCondition))
+    }
+
     scenario("Parsing of feature desc with default condition with string value 'on'") {
-      val sampleJsonDefaultActivation = """[{
-                                          |  "name": "Name of the Feature",
-                                          |  "description": "Some additional description",
-                                          |  "tags": ["Team Name", "Or Service name"],
-                                          |  "activation": [{"default": "on"}]
-                                          |}]""".stripMargin
-      val featureDescs = sampleJsonDefaultActivation.parseJson.convertTo[Seq[FeatureDescription]]
+      val featureDescs = sampleJsonDefaultActivation(""" "on" """).parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.size === 1)
       assert(featureDescs.head.activation === Set(AlwaysOnCondition))
+    }
+
+    scenario("Parsing of feature desc with default condition with string value 'off'") {
+      val featureDescs = sampleJsonDefaultActivation(""" "off" """).parseJson.convertTo[Seq[FeatureDescription]]
+      assert(featureDescs.size === 1)
+      assert(featureDescs.head.activation === Set(AlwaysOffCondition))
     }
 
     scenario("Parsing of feature desc with default condition with invalid int value 1 causes deserialization exception") {
@@ -103,12 +118,6 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                                           |}]""".stripMargin
       intercept[DeserializationException] {
         val featureDescs = sampleJsonDefaultActivation.parseJson.convertTo[Seq[FeatureDescription]]
-      }
-    }
-
-    scenario("Invalid range throws DeserializationEx") {
-      intercept[DeserializationException] {
-        FeatureJsonProtocol.ConditionJsonFormat.parseToRange("10-5")
       }
     }
   }
