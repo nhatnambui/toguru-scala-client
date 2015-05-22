@@ -13,7 +13,7 @@ jdk:
 - oraclejdk8
 
 script:
-- sbt test package
+- sbt clean coverage test package
 # Trick to avoid unnecessary cache updates
 - find $HOME/.sbt -name "*.lock" | xargs rm
 
@@ -28,5 +28,6 @@ notifications:
 
 after_success:
   - >
+      sbt coveralls &&
       sh "$TRAVIS_BUILD_DIR/travis-ci-bintray-credentials.sh" &&
       sbt publish
