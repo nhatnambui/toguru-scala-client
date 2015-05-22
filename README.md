@@ -3,6 +3,7 @@ FeatureBee client for Scala applications
 
 ## Status
 [![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://travis-ci.org/AutoScout24/featurebee-scala)
+[![Coverage Status](https://coveralls.io/repos/AutoScout24/featurebee-scala/badge.png?branch=master)](https://coveralls.io/r/AutoScout24/featurebee-scala?branch=master)
 
 ### Contract
 The FeatureBee Server returns a list of all defined features.
