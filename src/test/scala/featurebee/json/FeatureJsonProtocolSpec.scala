@@ -34,7 +34,7 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                                           |  "name": "Name of the Feature",
                                           |  "description": "Some additional description",
                                           |  "tags": ["Team Name", "Or Service name"],
-                                          |  "activation": [{"trafficDistribution": "5-10"}]
+                                          |  "activation": [{"trafficDistribution": "96-100"}]
                                           |}]""".stripMargin
 
   feature("Parsing of feature desc json") {
@@ -66,7 +66,7 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
     scenario("Successfully parse sample json with uuid distribution single range") {
       val featureDescs = sampleJsonUuidDistributionSingleRange.parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.head.activation.size === 1)
-      assert(featureDescs.head.activation.head === UuidDistributionCondition(5 to 10))
+      assert(featureDescs.head.activation.head === UuidDistributionCondition(96 to 100))
     }
   }
 }

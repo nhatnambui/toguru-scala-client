@@ -34,7 +34,7 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
 
     def mapUuidRanges(uuidRanges: Vector[JsValue]) = {
 
-      val rangeRegex = """(\d{1,2})-(\d{1,2})""".r
+      val rangeRegex = """(\d{1,3})-(\d{1,3})""".r
 
       def parseToRange(s: String): Range = {
           s match {
