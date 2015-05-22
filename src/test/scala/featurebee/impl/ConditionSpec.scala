@@ -44,12 +44,18 @@ class ConditionSpec extends FeatureSpec {
       val clientInfo = ClientInfoImpl(uuid = Some(uuidWithDefaultProjectionToFive))
       assert(!UuidDistributionCondition(10 to 11).applies(clientInfo))
     }
+
+    scenario("Uuid distribution condition throws an exception if the range is not between 1 and 100") {
+      intercept[IllegalArgumentException] {
+        UuidDistributionCondition(100 to 101)
+      }
+    }
   }
 
   feature("default uuid to int projection") {
     val uuid = UUID.randomUUID()
 
-    scenario(s"Random uuid ($uuid) gets projected") {
+    scenario(s"Random uuid ($uuid) gets projected between 1 and 100") {
       val projected = UuidDistributionCondition.defaultUuidToIntProjection(uuid)
       assert(projected > 0 && projected <= 100)
     }
