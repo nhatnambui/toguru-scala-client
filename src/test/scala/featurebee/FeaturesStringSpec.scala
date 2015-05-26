@@ -23,6 +23,14 @@ class FeaturesStringSpec extends FeatureSpec {
     scenario("Feature forcing is case insensitive") {
       assert(forcedFeatures("FEATURE1").value === true)
     }
+
+    scenario("Illegal feature spec returns None for feature specified wrongly") {
+      val forcedFeaturesString = "feature1=thisiswrong|feature2=false|feature3=true"
+      val forcedFeatures = FeaturesString.parseForcedFeaturesString(forcedFeaturesString)
+
+      assert(forcedFeatures("feature1") === None)
+      assert(forcedFeatures("feature3").value === true)
+    }
   }
 
 }
