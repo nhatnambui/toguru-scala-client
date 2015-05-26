@@ -145,4 +145,20 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       }
     }
   }
+
+  feature("Unsupported conditions throws DeserializationException") {
+    scenario("Unsupported conditions throws DeserializationException") {
+
+      val unknownCond = """[{
+                                  |  "name": "Name of the Feature",
+                                  |  "description": "Some additional description",
+                                  |  "tags": ["Team Name", "Or Service name"],
+                                  |  "activation": [{"unknown-condition": ""}]
+                                  |}]""".stripMargin
+
+      intercept[DeserializationException] {
+        unknownCond.parseJson.convertTo[Seq[FeatureDescription]]
+      }
+    }
+  }
 }
