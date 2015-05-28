@@ -17,6 +17,7 @@ FeatureBee client for Scala applications
       override def languageDropdown = Feature("TATSU-232-Language-dropdown").getOrElse(AlwaysOffFeature)
       override def survey = Feature("TATSU-243-survey").getOrElse(AlwaysOffFeature)
     }
+    
 2. Write a support object which defines how the request from the client is used to extract relevant feature toggle info, 
 like e.g. the language or the browser. For Play apps you may use the already defined PlayClientInfoSupport:
 
@@ -26,6 +27,7 @@ like e.g. the language or the browser. For Play apps you may use the already def
         ClientInfoImpl(userAgent, localeFromCookieValue("culture"), uuidFromCookieValue("as24Visitor"), forcedFeatureToggle)
       }
     }  
+    
 3. Currently only a static json file inside your deployment is supported, see Contract section below. See the usage of StaticJsonFeatureRegistry
 above for infos how you specify the location of the feature config file.
 
@@ -36,9 +38,12 @@ the order of precedence, so query param has precedence over cookie. All the keys
 
 ### Query param
 Use query param 'featurebee' to specify forced/god mode activation of features and:
+
     http://yourUrl?featurebee=feature1%3Dtrue%7Cfeature2%3Dfalse
+    
 '=' is used to assign the true/false value to a feature with the given name and '|' is used to separate the different features 
 from each other. So we need URL encoding here, so the above forced feature string would decode to
+
     feature1=true|feature2=false
     
 ### Request Header 
