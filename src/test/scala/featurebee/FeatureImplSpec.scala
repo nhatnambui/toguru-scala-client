@@ -12,23 +12,23 @@ class FeatureImplSpec extends FeatureSpec {
   
   feature("Standard feature activation") {
     scenario("Feature is active when always on condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Set(AlwaysOnCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = None, Set(AlwaysOnCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === true)
     }
 
     scenario("Feature is not active when always off condition is used") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Set(AlwaysOffCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = None, Set(AlwaysOffCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
 
     scenario("FeatureImpl throws IllegalArgumentException when no condition is used") {
       intercept[IllegalArgumentException] {
-        FeatureDescription("name", "desc", tags = Set(), Set())
+        FeatureDescription("name", "desc", tags = None, Set())
       }
     }
 
     scenario("Feature is not active when not all conditions are met") {
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Set(AlwaysOffCondition, AlwaysOnCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = None, Set(AlwaysOffCondition, AlwaysOnCondition))
       assert(new FeatureImpl(featureDescription).isActive(emptyClientInfo) === false)
     }
   }
@@ -36,13 +36,13 @@ class FeatureImplSpec extends FeatureSpec {
   feature("God mode overriding of feature settings") {
     scenario("Overriding has precedence") {
       val clientInfoForcedAlwaysOn = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
-      val featureDescription = FeatureDescription("name", "desc", tags = Set(), Set(AlwaysOffCondition))
+      val featureDescription = FeatureDescription("name", "desc", tags = None, Set(AlwaysOffCondition))
       assert(new FeatureImpl(featureDescription).isActive(clientInfoForcedAlwaysOn) === true)
     }
   }
 
   feature("Using block convenience methods in Feature for chrome only feature")  {
-    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = Set(),
+    val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = None,
       Set(UserAgentCondition(Set("Chrome"))))
     val feature = new FeatureImpl(featureDescriptionChromeOnly)
 

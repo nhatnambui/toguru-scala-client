@@ -11,32 +11,32 @@ import org.scalatest.OptionValues._
 class FeatureJsonProtocolSpec extends FeatureSpec {
 
   val sampleJsonChromeDE = """[{
-                     |  "name": "Name of the Feature",
-                     |  "description": "Some additional description",
-                     |  "tags": ["Team Name", "Or Service name"],
-                     |  "activation": [{"culture": ["de-DE"]}, {"userAgentFragments": ["Chrome"]}]
-                     |}]""".stripMargin
+                             |  "name": "Name of the Feature",
+                             |  "description": "Some additional description",
+                             |  "tags": ["Team Name", "Or Service name"],
+                             |  "activation": [{"culture": ["de-DE"]}, {"userAgentFragments": ["Chrome"]}]
+                             |}]""".stripMargin
 
   val sampleJsonFirefoxEN = """[{
-                     |  "name": "Name of the Feature",
-                     |  "description": "Some additional description",
-                     |  "tags": ["Team Name", "Or Service name"],
-                     |  "activation": [{"culture": ["en"]}, {"userAgentFragments": ["Firefox"]}]
-                     |}]""".stripMargin
-
-  val sampleJsonUuidDistributionArray = """[{
                               |  "name": "Name of the Feature",
                               |  "description": "Some additional description",
                               |  "tags": ["Team Name", "Or Service name"],
-                              |  "activation": [{"trafficDistribution": ["5-10", "10-20"]}]
+                              |  "activation": [{"culture": ["en"]}, {"userAgentFragments": ["Firefox"]}]
                               |}]""".stripMargin
 
-  val sampleJsonUuidDistributionSingleRange = """[{
+  val sampleJsonUuidDistributionArray = """[{
                                           |  "name": "Name of the Feature",
                                           |  "description": "Some additional description",
                                           |  "tags": ["Team Name", "Or Service name"],
-                                          |  "activation": [{"trafficDistribution": "96-100"}]
+                                          |  "activation": [{"trafficDistribution": ["5-10", "10-20"]}]
                                           |}]""".stripMargin
+
+  val sampleJsonUuidDistributionSingleRange = """[{
+                                                |  "name": "Name of the Feature",
+                                                |  "description": "Some additional description",
+                                                |  "tags": ["Team Name", "Or Service name"],
+                                                |  "activation": [{"trafficDistribution": "96-100"}]
+                                                |}]""".stripMargin
 
   feature("Parsing of feature desc json") {
     scenario("Successfully parse sample json from story desc") {
@@ -69,21 +69,15 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       assert(featureDescs.head.activation.size === 1)
       assert(featureDescs.head.activation.head === UuidDistributionCondition(96 to 100))
     }
-
-    scenario("Invalid range throws DeserializationEx") {
-      intercept[DeserializationException] {
-        FeatureJsonProtocol.ConditionJsonFormat.parseToRange("10-5")
-      }
-    }
   }
 
   feature("Default condition mapping") {
     def sampleJsonDefaultActivation(defaultCondValue: String) = s"""[{
-                                        |  "name": "Name of the Feature",
-                                        |  "description": "Some additional description",
-                                        |  "tags": ["Team Name", "Or Service name"],
-                                        |  "activation": [{"default": $defaultCondValue}]
-                                        |}]""".stripMargin
+                                                                   | "name": "Name of the Feature",
+                                                                   | "description": "Some additional description",
+                                                                   | "tags": ["Team Name", "Or Service name"],
+                                                                   | "activation": [{"default": $defaultCondValue}]
+                                                                                                                   |}]""".stripMargin
 
     scenario("Parsing of feature desc with default condition with boolean set to true") {
       val featureDescs = sampleJsonDefaultActivation("true").parseJson.convertTo[Seq[FeatureDescription]]
@@ -98,13 +92,13 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
     }
 
     scenario("Parsing of feature desc with default condition with string value 'on'") {
-      val featureDescs = sampleJsonDefaultActivation(""" "on" """).parseJson.convertTo[Seq[FeatureDescription]]
+      val featureDescs = sampleJsonDefaultActivation( """ "on" """).parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.size === 1)
       assert(featureDescs.head.activation === Set(AlwaysOnCondition))
     }
 
     scenario("Parsing of feature desc with default condition with string value 'off'") {
-      val featureDescs = sampleJsonDefaultActivation(""" "off" """).parseJson.convertTo[Seq[FeatureDescription]]
+      val featureDescs = sampleJsonDefaultActivation( """ "off" """).parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.size === 1)
       assert(featureDescs.head.activation === Set(AlwaysOffCondition))
     }
@@ -146,19 +140,61 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
     }
   }
 
-  feature("Unsupported conditions throws DeserializationException") {
-    scenario("Unsupported conditions throws DeserializationException") {
+  feature("Json consistency validation") {
 
+    scenario("Invalid range throws DeserializationEx") {
+      intercept[DeserializationException] {
+        FeatureJsonProtocol.ConditionJsonFormat.parseToRange("10-5")
+      }
+    }
+
+    scenario("Empty activation throws IllegalArgumentException") {
+      val emptyActivation = """[{
+                              |  "name": "Name of the Feature",
+                              |  "description": "Some additional description",
+                              |  "tags": ["Team Name", "Or Service name"],
+                              |  "activation": []
+                              |}]""".stripMargin
+
+      intercept[IllegalArgumentException] {
+        emptyActivation.parseJson.convertTo[Seq[FeatureDescription]]
+      }
+    }
+
+    scenario("Empty name should throw IllegalArgumentEx") {
+      intercept[IllegalArgumentException] {
+        new FeatureDescription(" ", "desc", None, activation = Set(AlwaysOnCondition))
+      }
+    }
+
+    scenario("Empty description should throw IllegalArgumentEx") {
+      intercept[IllegalArgumentException] {
+        new FeatureDescription("name", " ", None, activation = Set(AlwaysOnCondition))
+      }
+    }
+
+    scenario("Unsupported conditions throws DeserializationException") {
       val unknownCond = """[{
-                                  |  "name": "Name of the Feature",
-                                  |  "description": "Some additional description",
-                                  |  "tags": ["Team Name", "Or Service name"],
-                                  |  "activation": [{"unknown-condition": ""}]
-                                  |}]""".stripMargin
+                          |  "name": "Name of the Feature",
+                          |  "description": "Some additional description",
+                          |  "tags": ["Team Name", "Or Service name"],
+                          |  "activation": [{"unknown-condition": ""}]
+                          |}]""".stripMargin
 
       intercept[DeserializationException] {
         unknownCond.parseJson.convertTo[Seq[FeatureDescription]]
       }
+    }
+
+    scenario("Tags are optional") {
+      val featureWithoutTags = """[{
+                                 |  "name": "name",
+                                 |  "description": "desc",
+                                 |  "activation": [{"default": true}]
+                                 |}]""".stripMargin
+
+
+      assert(Seq(FeatureDescription("name", "desc", None, Set(AlwaysOnCondition))) === featureWithoutTags.parseJson.convertTo[Seq[FeatureDescription]])
     }
   }
 }
