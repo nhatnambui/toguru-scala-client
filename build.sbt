@@ -21,5 +21,8 @@ ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 90
 
 ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
 
-resolvers += Classpaths.sbtPluginReleases
+resolvers ++= Seq(
+  Classpaths.sbtPluginReleases,
+  "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+)
 
