@@ -8,15 +8,17 @@ FeatureBee client for Scala applications
 ## How to use it in your App
 1. Write a Features trait to access all your features in one place, e.g.
 
-    trait Features {
-      def languageDropdown: Feature
-      def survey: Feature
-    }
-    object Features extends Features {
-      private implicit lazy val featureRegistry = StaticJsonFeatureRegistry("featureBee.json")
-      override def languageDropdown = Feature("TATSU-232-Language-dropdown").getOrElse(AlwaysOffFeature)
-      override def survey = Feature("TATSU-243-survey").getOrElse(AlwaysOffFeature)
-    }
+        ```scala
+        trait Features {
+          def languageDropdown: Feature
+          def survey: Feature
+        }
+        object Features extends Features {
+          private implicit lazy val featureRegistry = StaticJsonFeatureRegistry("featureBee.json")
+          override def languageDropdown = Feature("TATSU-232-Language-dropdown").getOrElse(AlwaysOffFeature)
+          override def survey = Feature("TATSU-243-survey").getOrElse(AlwaysOffFeature)
+        }
+        ```
     
 2. Write a support object which defines how the request from the client is used to extract relevant feature toggle info, 
 like e.g. the language or the browser. For Play apps you may use the already defined PlayClientInfoSupport:
