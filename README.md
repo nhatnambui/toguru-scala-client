@@ -1,11 +1,11 @@
 # FeatureBee for Scala
 FeatureBee client for Scala applications
 
-## Status
+### Status
 [![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://travis-ci.org/AutoScout24/featurebee-scala)
 [![Coverage Status](https://coveralls.io/repos/AutoScout24/featurebee-scala/badge.svg)](https://coveralls.io/r/AutoScout24/featurebee-scala)
 
-## How to use it in your App
+### How to use it in your App
 1. Write a Features trait to access all your features in one place, e.g.
 ```scala
 trait Features {
@@ -32,12 +32,12 @@ object ControllerClientInfoSupport {
 
 3. Currently only a static json file inside your deployment is supported, see Contract section below. See the usage of StaticJsonFeatureRegistry above for infos how you specify the location of the feature config file.
 
-## Forced feature toggling using the default PlayClientInfoSupport
+### Forced feature toggling (GodMode)
 If you use the PlayClientInfoSupport, you may force feature activation regardless of the conditions you specify in your
 json feature config by setting a query param, a request Header, or a cookie. This order of mentioning the variants is also
 the order of precedence, so query param has precedence over cookie. All the keys are case insensitive.
 
-### Query param
+##### Query param
 Use query param 'featurebee' to specify forced/god mode activation of features and:
 
     http://yourUrl?featurebee=feature1%3Dtrue%7Cfeature2%3Dfalse
@@ -47,13 +47,13 @@ from each other. So we need URL encoding here, so the above forced feature strin
 
     feature1=true|feature2=false
     
-### Request Header 
+##### Request Header 
 Use header name 'featurebee' or 'X-Featurebee' (case insensitiv) to specify the forced/god mode feature activation:
 Example request header value:
 
     feature1=true|feature2=false
     
-### Cookie
+##### Cookie
 Use a cookie with name 'featurebee' to specify the forced/god mode feature activation:
 Example cookie value:
  
