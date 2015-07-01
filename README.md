@@ -40,7 +40,7 @@ the order of precedence, so query param has precedence over cookie. All the keys
 ##### Query param
 Use query param 'featurebee' to specify forced/god mode activation of features and:
 
-    http://yourUrl?featurebee=feature1%3Dtrue%7Cfeature2%3Dfalse
+    http://yourUrl?featurebee=feature1%3Dtrue%7Cfeature2%3Dfalse (which decodes to http://yourUrl?featurebee=feature1=true|feature2=false)
 
 '=' is used to assign the true/false value to a feature with the given name and '|' is used to separate the different features 
 from each other. So we need URL encoding here, so the above forced feature string would decode to
