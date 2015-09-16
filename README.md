@@ -78,3 +78,9 @@ The json has to fulfill the following requirements:
 * activation must contain at least one condition
 * description is mandatory
 * tags are optional
+
+## Copyright
+
+Copyright (C) 2015 AutoScout24 GmbH.
+
+Distributed under the MIT License.
