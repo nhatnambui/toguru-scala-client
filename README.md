@@ -5,6 +5,18 @@ FeatureBee client for Scala applications
 [![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://travis-ci.org/AutoScout24/featurebee-scala)
 [![Coverage Status](https://coveralls.io/repos/AutoScout24/featurebee-scala/badge.svg)](https://coveralls.io/r/AutoScout24/featurebee-scala)
 
+### Setup
+
+Add to your `build.sbt` following resolver with dependency:
+
+```scala
+resolvers += Resolver.bintrayRepo("tatsu-kondor", "maven")
+
+libraryDependencies += "com.autoscout24" %% "featurebee" % "1.0.77"
+```
+
+Now you can use FeatureBee library.
+
 ### How to use it in your App
 1. Write a Features trait to access all your features in one place, e.g.
 ```scala
