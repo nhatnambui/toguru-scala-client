@@ -53,7 +53,7 @@ Add file `featureBee.json` at your `resources` or `conf` folder with `JSON` that
 ]
 ```
 
-For deatil information regarding format of `JSON` see [Contract](#Contract) paragraph.
+For deatil information regarding format of `JSON` see [Contract](#contract) paragraph.
 
 Write a support object which defines how the request from the client is used to extract relevant feature toggle info, like e.g. the language or the browser. For Play apps you may use the already defined `PlayClientInfoSupport`:
 
