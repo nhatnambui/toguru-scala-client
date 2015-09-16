@@ -1,11 +1,13 @@
-# FeatureBee for Scala
+# FeatureBee For Scala
+
 FeatureBee client for Scala applications
 
-### Status
+## Status
+
 [![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://travis-ci.org/AutoScout24/featurebee-scala)
 [![Coverage Status](https://coveralls.io/repos/AutoScout24/featurebee-scala/badge.svg)](https://coveralls.io/r/AutoScout24/featurebee-scala)
 
-### Setup
+## Setup
 
 Add to your `build.sbt` following resolver with dependency:
 
@@ -17,7 +19,7 @@ libraryDependencies += "com.autoscout24" %% "featurebee" % "1.0.77"
 
 Now you can use FeatureBee library.
 
-### How to use it in your App
+## How To Use
 
 Write a Features trait to access all your features in one place, e.g.:
 
@@ -68,11 +70,11 @@ object ControllerClientInfoSupport {
 
 Currently only a static json file inside your deployment is supported, see Contract section below. See the usage of `StaticJsonFeatureRegistry` above for infos how you specify the location of the feature config file.
 
-### Forced feature toggling (GodMode)
+## Forced Feature Toggling (GodMode)
 
 If you use the `PlayClientInfoSupport`, you may force feature activation regardless of the conditions you specify in your `JSON` feature config by setting a query param, a request Header, or a cookie. This order of mentioning the variants is also the order of precedence, so query param has precedence over cookie. All the keys are case insensitive.
 
-##### Query param
+### Query Param
 
 Use query param `featurebee` to specify forced / god mode activation of features:
 
@@ -92,7 +94,7 @@ http://yourUrl?featurebee=feature1=true|feature2=false)
 feature1=true|feature2=false
 ```
 
-##### Request Header 
+### Request Header 
 
 Use header name `featurebee` or `X-Featurebee` (case insensitiv) to specify the forced / god mode feature activation. 
 
@@ -102,7 +104,7 @@ Example request header value:
 feature1=true|feature2=false
 ```
 
-##### Cookie
+### Cookie
 
 Use a cookie with name `featurebee` to specify the forced/god mode feature activation.
 
@@ -112,7 +114,7 @@ Example cookie value:
 feature1=true|feature2=false
 ```
 
-### Contract
+## Contract
 
 The FeatureBee Server returns a list of all defined features.
 
