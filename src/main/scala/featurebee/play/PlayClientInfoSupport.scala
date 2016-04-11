@@ -8,6 +8,8 @@ import play.api.mvc.RequestHeader
 import featurebee.FeaturesString._
 import featurebee.api.Feature._
 
+import scala.util.Try
+
 /**
  * Default support methods for converting a [[RequestHeader]] to a [[featurebee.ClientInfo]].
  *
@@ -35,7 +37,7 @@ object PlayClientInfoSupport {
   } yield lang.toLocale
 
   def uuidFromCookieValue(cookieName: String)(implicit requestHeader: RequestHeader): Option[UUID] =
-    requestHeader.cookies.get(cookieName).map(c => UUID.fromString(c.value))
+    requestHeader.cookies.get(cookieName).flatMap(c => Try(UUID.fromString(c.value)).toOption)
 
   def forcedFeatureToggle(featureName: String)(implicit requestHeader: RequestHeader): Option[Boolean] = {
 
