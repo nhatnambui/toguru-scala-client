@@ -1,15 +1,15 @@
 package featurebee
 
 import featurebee.api._
-import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, UserAgentCondition, FeatureDescription}
+import featurebee.impl._
 import org.scalatest.FeatureSpec
 import org.scalatest.OptionValues._
 import org.mockito.Mockito._
 
 class FeatureImplSpec extends FeatureSpec {
-   
+
   val emptyClientInfo = ClientInfoImpl()
-  
+
   feature("Standard feature activation") {
     scenario("Feature is active when always on condition is used") {
       val featureDescription = FeatureDescription("name", "desc", tags = None, Set(AlwaysOnCondition))
@@ -88,12 +88,12 @@ class FeatureImplSpec extends FeatureSpec {
   feature("AlwaysOn/Off Feature") {
     scenario("AlwaysOnFeature always activates feature") {
       val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(false))
-      assert(AlwaysOnFeature.isActive(clientInfo) === true)
+      assert(AlwaysOnFeature("feature1").isActive(clientInfo) === true)
     }
 
     scenario("AlwaysOffFeature always deactivates feature") {
       val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
-      assert(AlwaysOffFeature.isActive(clientInfo) === false)
+      assert(AlwaysOffFeature("feature2").isActive(clientInfo) === false)
     }
   }
 }

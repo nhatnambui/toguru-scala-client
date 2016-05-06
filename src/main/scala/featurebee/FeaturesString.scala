@@ -1,7 +1,10 @@
 package featurebee
 
+import featurebee.api.Feature
 import featurebee.api.Feature.FeatureName
+import featurebee.impl.FeatureDescription
 
+import scala.language.higherKinds
 import scala.util.Try
 
 object FeaturesString {
@@ -17,14 +20,20 @@ object FeaturesString {
    */
   def parseForcedFeaturesString(featuresString: String): FeatureName => Option[Boolean] = {
     featureName =>
-      val map = featuresString.split('|').toList.map {
+      val map = featuresString.split('|').toList.flatMap {
         singleFeature =>
           singleFeature.split('=').toList match {
             case key :: value :: Nil if Try(value.toBoolean).isSuccess => Some(key.toLowerCase -> value.toBoolean)
             case other => None // wrong feature format. e.g. name=uh
           }
-      }.flatten.toMap
+      }.toMap
 
       lowerCaseKeys(map).get(featureName.toLowerCase)
+  }
+
+  def buildFeaturesString(features: Traversable[Feature])(implicit clientInfo: ClientInfo): String = {
+    features.map { (feature) =>
+      s"${feature.featureDescription.name}=${feature.isActive}"
+    }.mkString("|")
   }
 }

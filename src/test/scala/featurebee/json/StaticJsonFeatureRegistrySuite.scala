@@ -1,20 +1,28 @@
 package featurebee.json
 
-import org.scalatest.FunSuite
+import java.util.Locale
 
-class StaticJsonFeatureRegistrySuite extends FunSuite {
+import featurebee.api.Feature
+import featurebee.helpers.ClientInfoHelper
+import featurebee.{ClientInfoImpl, ClientInfo}
+import org.scalatest.{ShouldMatchers, FeatureSpec, FunSuite}
+import ClientInfoHelper._
+
+import scala.None
+
+class StaticJsonFeatureRegistrySuite extends FeatureSpec with ShouldMatchers {
 
   val featureReg = StaticJsonFeatureRegistry("feature-config-sample.txt")
 
-  test("specific feature from static Json Feature registry from file in classpath") {
+  scenario("specific feature from static Json Feature registry from file in classpath") {
     assert(featureReg.feature("Name of the Feature").nonEmpty)
   }
 
-  test("all features Creating Static Json Feature registry from file in classpath") {
+  scenario("all features Creating Static Json Feature registry from file in classpath") {
     assert(featureReg.allFeatures.size === 1)
   }
 
-  test("duplicate feature names throws IllegalStateException") {
+  scenario("duplicate feature names throws IllegalStateException") {
 
     val invalidJsonConfig =
       s"""
@@ -36,6 +44,137 @@ class StaticJsonFeatureRegistrySuite extends FunSuite {
 
     intercept[IllegalStateException] {
       new StaticJsonFeatureRegistry(invalidJsonConfig)
+    }
+  }
+
+
+  feature("Provide Feature Query Strings for Service Fragments") {
+
+    scenario("There are no features for a service") {
+      val input = """[{
+        |  "name": "name-of-feature",
+        |  "description": "Some additional description",
+        |  "tags": ["Team Name", "Or Service name"],
+        |  "activation": [{"default": true}]
+        |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl()
+
+      sut.featureStringForService("content-service") should be("")
+    }
+
+    scenario("There is a feature for a service and it is enabled by default") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": true}],
+                    |  "services": ["content-service"]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl()
+
+      sut.featureStringForService("content-service") should be("name-of-feature=true")
+    }
+
+    scenario("There is a feature for a service and it is disabled by default") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": false}],
+                    |  "services": ["content-service"]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl()
+
+      sut.featureStringForService("content-service") should be("name-of-feature=false")
+    }
+
+    scenario("There is a feature for a service and it is enabled by the client") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": false}],
+                    |  "services": ["content-service"]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl(None, None, None, forceFeatureTo("name-of-feature", enabled = true))
+
+      sut.featureStringForService("content-service") should be("name-of-feature=true")
+    }
+
+    scenario("There is a feature for a service and it is disabled by the client") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": true}],
+                    |  "services": ["content-service"]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl(None, None, None, forceFeatureTo("name-of-feature", enabled = false))
+
+      sut.featureStringForService("content-service") should be("name-of-feature=false")
+    }
+
+    scenario("There is a feature for a service and it is enabled by the client locale") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"culture": ["de-DE"]}],
+                    |  "services": ["content-service"]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl(None, Some(new Locale("de", "DE")))
+
+      sut.featureStringForService("content-service") should be("name-of-feature=true")
+    }
+
+    scenario("There is a feature for a service and it is disabled by the client locale") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"culture": ["fr-BE"]}],
+                    |  "services": ["content-service"]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl(None, Some(new Locale("de-DE")))
+
+      sut.featureStringForService("content-service") should be("name-of-feature=false")
+    }
+
+    scenario("There are multiple features for a service") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": true}],
+                    |  "services": ["content-service"]
+                    |},
+                    |{
+                    |  "name": "name-of-feature-2",
+                    |  "description": "Some other additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": true}],
+                    |  "services": ["content-service"]
+                    |}
+                    |]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl()
+
+      sut.featureStringForService("content-service") should be("name-of-feature=true|name-of-feature-2=true")
     }
   }
 }
