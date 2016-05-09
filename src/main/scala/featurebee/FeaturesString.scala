@@ -2,9 +2,7 @@ package featurebee
 
 import featurebee.api.Feature
 import featurebee.api.Feature.FeatureName
-import featurebee.impl.FeatureDescription
 
-import scala.language.higherKinds
 import scala.util.Try
 
 object FeaturesString {
