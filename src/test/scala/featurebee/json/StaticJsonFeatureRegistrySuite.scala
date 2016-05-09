@@ -50,12 +50,27 @@ class StaticJsonFeatureRegistrySuite extends FeatureSpec with ShouldMatchers {
 
   feature("Provide Feature Query Strings for Service Fragments") {
 
+    scenario("There are no services defined for a feature") {
+      val input = """[{
+                    |  "name": "name-of-feature",
+                    |  "description": "Some additional description",
+                    |  "tags": ["Team Name", "Or Service name"],
+                    |  "activation": [{"default": true}]
+                    |}]""".stripMargin
+
+      val sut = new StaticJsonFeatureRegistry(input)
+      implicit val clientInfo: ClientInfo = ClientInfoImpl()
+
+      sut.featureStringForService("content-service") should be("")
+    }
+
     scenario("There are no features for a service") {
       val input = """[{
         |  "name": "name-of-feature",
         |  "description": "Some additional description",
         |  "tags": ["Team Name", "Or Service name"],
-        |  "activation": [{"default": true}]
+        |  "activation": [{"default": true}],
+        |  "services": []
         |}]""".stripMargin
 
       val sut = new StaticJsonFeatureRegistry(input)
