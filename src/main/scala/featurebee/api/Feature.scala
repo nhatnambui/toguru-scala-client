@@ -1,7 +1,7 @@
 package featurebee.api
 
 import featurebee.ClientInfo
-import featurebee.impl.FeatureDescription
+import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, FeatureDescriptionHelper, FeatureDescription}
 
 import scala.annotation.implicitNotFound
 
@@ -21,6 +21,11 @@ sealed trait Feature {
   def ifNotActive[T](block: => T)(implicit clientInfo: ClientInfo): Option[T]
 
   def isActive(implicit clientInfo: ClientInfo): Boolean
+
+  /**
+    * An optional description of the feature.
+    */
+  def featureDescription: Option[FeatureDescription]
 }
 
 abstract class BaseFeature extends Feature {
@@ -32,6 +37,7 @@ abstract class BaseFeature extends Feature {
  * Use this object if you want to default to true for unknown feature names.
  */
 object AlwaysOnFeature extends BaseFeature {
+  val featureDescription = None
   override def isActive(implicit clientInfo: ClientInfo): Boolean = true
 }
 
@@ -39,11 +45,14 @@ object AlwaysOnFeature extends BaseFeature {
  * Use this object if you want to default to false for unknown feature names.
  */
 object AlwaysOffFeature extends BaseFeature {
+
+  val featureDescription = None
   override def isActive(implicit clientInfo: ClientInfo): Boolean = false
 }
 
-class FeatureImpl(desc: FeatureDescription) extends BaseFeature {
+class FeatureImpl(val desc: FeatureDescription) extends BaseFeature {
 
+  val featureDescription = Some(desc)
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
     clientInfo.forcedFeatureToggle(desc.name).getOrElse {
       desc.activation.forall(cond => cond.applies(clientInfo))

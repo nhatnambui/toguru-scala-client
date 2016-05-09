@@ -138,6 +138,43 @@ The `JSON` has to fulfill the following requirements:
 * description is mandatory
 * tags are optional
 
+## Fragment Services & Features
+
+When working with Fragments you may need to pass the feature toggles through to Fragment Service.
+
+To do this you can define the services your feature is required in. From there you can call the Feature Registry and 
+get the Feature String for a particular service.
+
+e.g:
+
+```json
+[{
+  "name": "name-of-the-feature",
+  "description": "Some additional description",
+  "tags": ["Team Name", "Or Service name"],
+  "activation": [{"default": true}],
+  "services": ["content-service"]
+},
+{
+  "name": "name-of-another-feature",
+  "description": "Some other description",
+  "tags": ["Team Name", "Or Service name"],
+  "activation": [{"default": true}],
+  "services": []
+}]
+```
+
+Where you are including your fragment you can now do:
+
+```scala
+val featureString = featureRegistry.featureStringForService("content-service")
+@Html(s"""<!--#include virtual="/fragment/contentservice/header.html?featurebee=${featureString}" -->""")
+```
+
+This will only pass across the appropriate features to the fragment service. e.g:
+
+`/fragment/contentservice/header.html?featurebee=name-of-the-feature=true`
+
 ## Copyright
 
 Copyright (C) 2015 AutoScout24 GmbH.

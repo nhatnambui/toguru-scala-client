@@ -74,5 +74,5 @@ object FeatureJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val featureDescriptionFormat = jsonFormat4(FeatureDescription)
+  implicit val featureDescriptionFormat = jsonFormat5(FeatureDescription)
 }
