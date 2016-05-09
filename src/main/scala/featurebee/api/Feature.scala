@@ -23,9 +23,9 @@ sealed trait Feature {
   def isActive(implicit clientInfo: ClientInfo): Boolean
 
   /**
-    * The description of the feature.
+    * An optional description of the feature.
     */
-  def featureDescription: FeatureDescription
+  def featureDescription: Option[FeatureDescription]
 }
 
 abstract class BaseFeature extends Feature {
@@ -35,28 +35,27 @@ abstract class BaseFeature extends Feature {
 
 /**
  * Use this object if you want to default to true for unknown feature names.
-  * @param name The name of this feature, must exist in the feature registry.
  */
-case class AlwaysOnFeature(name: String) extends BaseFeature {
-  val featureDescription: FeatureDescription = FeatureDescription(name, "Always On Feature", None, Set(AlwaysOnCondition))
+object AlwaysOnFeature extends BaseFeature {
+  val featureDescription = None
   override def isActive(implicit clientInfo: ClientInfo): Boolean = true
 }
 
 /**
  * Use this object if you want to default to false for unknown feature names.
-  * * @param name The name of this feature, must exist in the feature registry.
  */
-case class AlwaysOffFeature(name: String) extends BaseFeature {
+object AlwaysOffFeature extends BaseFeature {
 
-  val featureDescription: FeatureDescription = FeatureDescription(name, "Always Off Feature", None, Set(AlwaysOffCondition))
+  val featureDescription = None
   override def isActive(implicit clientInfo: ClientInfo): Boolean = false
 }
 
-class FeatureImpl(val featureDescription: FeatureDescription) extends BaseFeature {
+class FeatureImpl(val desc: FeatureDescription) extends BaseFeature {
 
+  val featureDescription = Some(desc)
   override def isActive(implicit clientInfo: ClientInfo): Boolean = {
-    clientInfo.forcedFeatureToggle(featureDescription.name).getOrElse {
-      featureDescription.activation.forall(cond => cond.applies(clientInfo))
+    clientInfo.forcedFeatureToggle(desc.name).getOrElse {
+      desc.activation.forall(cond => cond.applies(clientInfo))
     }
   }
 }

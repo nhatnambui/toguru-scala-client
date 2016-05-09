@@ -37,10 +37,15 @@ object FeaturesString {
     * @param clientInfo The current client info
     * @return A feature string in the format of feature1=true|feature2=false|feature3=true. Where all feature objects in
     *         `features` are covered in the output.
+    * @throws IllegalArgumentException When features contains a feature that does not have a description.
     */
   def buildFeaturesString(features: Traversable[Feature])(implicit clientInfo: ClientInfo): String = {
+    if (features.exists { feature => feature.featureDescription.isEmpty }) {
+      throw new IllegalArgumentException("Cannot build feature String from features not containing a feature description")
+    }
+
     features.map { (feature) =>
-      s"${feature.featureDescription.name}=${feature.isActive}"
+      s"${feature.featureDescription.get.name}=${feature.isActive}"
     }.mkString("|")
   }
 }

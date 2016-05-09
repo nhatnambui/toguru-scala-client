@@ -88,12 +88,12 @@ class FeatureImplSpec extends FeatureSpec {
   feature("AlwaysOn/Off Feature") {
     scenario("AlwaysOnFeature always activates feature") {
       val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(false))
-      assert(AlwaysOnFeature("feature1").isActive(clientInfo) === true)
+      assert(AlwaysOnFeature.isActive(clientInfo) === true)
     }
 
     scenario("AlwaysOffFeature always deactivates feature") {
       val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
-      assert(AlwaysOffFeature("feature2").isActive(clientInfo) === false)
+      assert(AlwaysOffFeature.isActive(clientInfo) === false)
     }
   }
 }

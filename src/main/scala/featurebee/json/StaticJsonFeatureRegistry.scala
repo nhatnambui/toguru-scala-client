@@ -30,7 +30,7 @@ class StaticJsonFeatureRegistry(json: String) extends FeatureRegistry {
   override def featureStringForService(service: String)(implicit clientInfo: ClientInfo): String = {
     val serviceFeatures: Iterable[Feature] = features.values.filter { feature: Feature =>
       feature.featureDescription match {
-        case FeatureDescription(_, _, _, _, Some(services)) if services.contains(service) => true
+        case Some(FeatureDescription(_, _, _, _, Some(services))) if services.contains(service) => true
         case _ => false
       }
     }
