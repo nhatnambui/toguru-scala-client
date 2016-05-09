@@ -20,6 +20,13 @@ class StaticJsonFeatureRegistry(json: String) extends FeatureRegistry {
   
   override def feature(name: String): Option[Feature] = features.get(name)
   override def allFeatures: Set[(FeatureName, Feature)] = features.toSet
+
+  /**
+    * Builds a feature string for a specific service.
+    * @param service The service identifier to build the feature string for.
+    * @param clientInfo The current client information
+    * @return A feature string in the format of feature1=true|feature2=false|feature3=true
+    */
   override def featureStringForService(service: String)(implicit clientInfo: ClientInfo): String = {
     val serviceFeatures: Iterable[Feature] = features.values.filter { feature: Feature =>
       feature.featureDescription match {

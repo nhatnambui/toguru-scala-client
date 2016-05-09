@@ -14,9 +14,11 @@ object FeaturesString {
   /**
    * Parses the string for a forced activation of features.
    *
-   * @param featuresString usually has a format like: feature1=true|feature2=false|feature3=true, where the feature name should be case insensitive
+   * @param featuresString usually has a format like: feature1=true|feature2=false|feature3=true, where the feature name
+    *                       should be case insensitive
    *
-   * @return a function that can check if a given feature should be forced to be in the given state (true| false). The feature name is case insensitive.
+   * @return a function that can check if a given feature should be forced to be in the given state (true| false). The
+    *         feature name is case insensitive.
    */
   def parseForcedFeaturesString(featuresString: String): FeatureName => Option[Boolean] = {
     featureName =>
@@ -31,6 +33,13 @@ object FeaturesString {
       lowerCaseKeys(map).get(featureName.toLowerCase)
   }
 
+  /**
+    * Builds a feature string from a set of features and the current clientInfo.
+    * @param features The Features to build the string from.
+    * @param clientInfo The current client info
+    * @return A feature string in the format of feature1=true|feature2=false|feature3=true. Where all feature objects in
+    *         `features` are covered in the output.
+    */
   def buildFeaturesString(features: Traversable[Feature])(implicit clientInfo: ClientInfo): String = {
     features.map { (feature) =>
       s"${feature.featureDescription.name}=${feature.isActive}"

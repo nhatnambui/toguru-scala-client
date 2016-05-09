@@ -22,7 +22,10 @@ sealed trait Feature {
 
   def isActive(implicit clientInfo: ClientInfo): Boolean
 
-  val featureDescription: FeatureDescription
+  /**
+    * The description of the feature.
+    */
+  def featureDescription: FeatureDescription
 }
 
 abstract class BaseFeature extends Feature {
@@ -32,15 +35,16 @@ abstract class BaseFeature extends Feature {
 
 /**
  * Use this object if you want to default to true for unknown feature names.
+  * @param name The name of this feature, must exist in the feature registry.
  */
 case class AlwaysOnFeature(name: String) extends BaseFeature {
-
   val featureDescription: FeatureDescription = FeatureDescription(name, "Always On Feature", None, Set(AlwaysOnCondition))
   override def isActive(implicit clientInfo: ClientInfo): Boolean = true
 }
 
 /**
  * Use this object if you want to default to false for unknown feature names.
+  * * @param name The name of this feature, must exist in the feature registry.
  */
 case class AlwaysOffFeature(name: String) extends BaseFeature {
 
