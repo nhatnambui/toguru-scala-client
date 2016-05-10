@@ -14,7 +14,7 @@ Add to your `build.sbt` following resolver with dependency:
 ```scala
 resolvers += Resolver.bintrayRepo("tatsu-kondor", "maven")
 
-libraryDependencies += "com.autoscout24" %% "featurebee" % "1.0.77"
+libraryDependencies += "com.autoscout24" %% "featurebee" % "1.0.97"
 ```
 
 Now you can use FeatureBee library.
