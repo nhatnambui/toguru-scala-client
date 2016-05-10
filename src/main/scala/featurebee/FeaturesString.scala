@@ -14,8 +14,7 @@ object FeaturesString {
    *
    * @param featuresString usually has a format like: feature1=true|feature2=false|feature3=true, where the feature name
     *                       should be case insensitive
-   *
-   * @return a function that can check if a given feature should be forced to be in the given state (true| false). The
+    * @return a function that can check if a given feature should be forced to be in the given state (true| false). The
     *         feature name is case insensitive.
    */
   def parseForcedFeaturesString(featuresString: String): FeatureName => Option[Boolean] = {
@@ -33,6 +32,7 @@ object FeaturesString {
 
   /**
     * Builds a feature string from a set of features and the current clientInfo.
+    *
     * @param features The Features to build the string from.
     * @param clientInfo The current client info
     * @return A feature string in the format of feature1=true|feature2=false|feature3=true. Where all feature objects in
@@ -40,12 +40,6 @@ object FeaturesString {
     * @throws IllegalArgumentException When features contains a feature that does not have a description.
     */
   def buildFeaturesString(features: Traversable[Feature])(implicit clientInfo: ClientInfo): String = {
-    if (features.exists { feature => feature.featureDescription.isEmpty }) {
-      throw new IllegalArgumentException("Cannot build feature String from features not containing a feature description")
-    }
-
-    features.map { (feature) =>
-      s"${feature.featureDescription.get.name}=${feature.isActive}"
-    }.mkString("|")
+    features.map { feature => s"${feature.featureDescription.name}=${feature.isActive}" }.mkString("|")
   }
 }
