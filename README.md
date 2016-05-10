@@ -132,6 +132,26 @@ Conditions is an array of type and values. Supported types are `default`, `cultu
 Each condition can have its own format how the values should look like. Each condition could have multiple values. 
 All conditions have to be fulfilled (logical AND). 
 
+### Format of conditions
+* `default`: JSON Boolean (`true` or `false`) or JSON String (`"on"` or `"off"`)
+  * Examples: 
+    * `{ "default": true }` or `{ "default": false }` 
+    * `{ "default": "on" }` or `{ "default": "off" }`
+* `culture`: JSON Array of Strings in the form `"lang-COUNTRY"` or `"lang"` (only lower case) or `"COUNTRY"` (only upper case)
+  * Examples: 
+    * `{ "culture": ["de-AT"] }` 
+    * `{ "culture": ["AT"] }` 
+    * `{ "culture": ["de"] }` 
+    * `{ "culture": ["de-DE", "de-AT] }` 
+* `userAgentFragments`: JSON Array of Strings that must be contained in the user agent
+  * Example: `{"userAgentFragments": ["Firefox"]}`
+* `trafficDistribution`: JSON Array or a single JSON String in the from `"FROM-TO"` where `TO` > `FROM` and `1 <= FROM,TO <= 100`. 
+  * Examples: 
+    * `{ "trafficDistribution": "1-100" }` 
+    * `{ "trafficDistribution": "51-100" }` 
+    * `{ "trafficDistribution": "1-20" }` 
+    * `{ "trafficDistribution": ["1-20", "80-85"] }`
+
 The `JSON` has to fulfill the following requirements:
 * Name must be set and unique
 * activation must contain at least one condition
