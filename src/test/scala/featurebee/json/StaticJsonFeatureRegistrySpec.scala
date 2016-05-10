@@ -10,7 +10,7 @@ import ClientInfoHelper._
 
 import scala.None
 
-class StaticJsonFeatureRegistrySuite extends FeatureSpec with ShouldMatchers {
+class StaticJsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers {
 
   val featureReg = StaticJsonFeatureRegistry("feature-config-sample.txt")
 
