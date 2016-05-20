@@ -35,22 +35,45 @@ class S3JsonFeatureRegistrySpec extends FeatureSpec with MustMatchers with Optio
       r.isGood must be(true)
 
       r.foreach {
-        registry => registry.feature("feature-xyz").value.featureDescription.name must be("feature-xyz")
+        registryBuilt => registryBuilt.featureRegistry.feature("feature-xyz").value.featureDescription.name must be("feature-xyz")
       }
     }
 
-    scenario("Loading a missing file returns an Error") {
+    scenario("Loading a missing mandatory file returns an Error") {
       val s3Client = mock(classOf[AmazonS3Client])
       val s3Obj = mock(classOf[S3Object])
 
-      when(s3Client.getObject("bucket", "key")).thenThrow(new RuntimeException("Some ex"))
+      when(s3Client.getObject("bucket", "key1")).thenReturn(s3Obj)
+      when(s3Client.getObject("bucket", "key2")).thenThrow(new RuntimeException("Some ex"))
       when(s3Obj.getObjectContent).thenReturn(new S3ObjectInputStream(new StringInputStream(jsonConfig), mock(classOf[HttpRequestBase])))
 
-      val r = S3JsonFeatureRegistry.apply(Seq(S3File("bucket", "key")))(s3Client)
+      val r = S3JsonFeatureRegistry.apply(Seq(
+        S3File("bucket", "key1", ignoreOnFailures = false),
+        S3File("bucket", "key2", ignoreOnFailures = false)
+      ))(s3Client)
       r.isBad must be(true)
 
       r.badMap {
-        errors => errors.head must be(S3JsonFeatureRegistry.Error(S3File("bucket", "key"), "java.lang.RuntimeException: Some ex"))
+        errors => errors.head must be(S3JsonFeatureRegistry.Error(S3File("bucket", "key2"), "java.lang.RuntimeException: Some ex"))
+      }
+    }
+
+    scenario("Loading a missing optional file returns no error") {
+      val s3Client = mock(classOf[AmazonS3Client])
+      val s3Obj = mock(classOf[S3Object])
+
+      when(s3Client.getObject("bucket", "key1")).thenReturn(s3Obj)
+      when(s3Client.getObject("bucket", "key2")).thenThrow(new RuntimeException("Some ex"))
+      when(s3Obj.getObjectContent).thenReturn(new S3ObjectInputStream(new StringInputStream(jsonConfig), mock(classOf[HttpRequestBase])))
+
+      val r = S3JsonFeatureRegistry.apply(Seq(
+        S3File("bucket", "key1", ignoreOnFailures = false),
+        S3File("bucket", "key2", ignoreOnFailures = true)
+      ))(s3Client)
+      r.isGood must be(true)
+
+      r.foreach {
+        registryBuilt => registryBuilt.featureRegistry.feature("feature-xyz").value.featureDescription.name must be("feature-xyz")
       }
     }
   }
