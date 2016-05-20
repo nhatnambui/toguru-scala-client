@@ -24,5 +24,5 @@ class ReloadingFeatureRegistry(initial: FeatureRegistry, reCreator: () => Option
 
   override def feature(name: String): Option[Feature] = ref.get().feature(name)
 
-  override def allFeatures: Set[(FeatureName, Feature)] = ref.get().allFeatures
+  override def allFeaturesx: Set[(FeatureName, Feature)] = ref.get().allFeatures
 }
