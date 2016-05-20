@@ -3,8 +3,7 @@ package featurebee
 import featurebee.api._
 import featurebee.helpers.ClientInfoHelper
 import featurebee.impl._
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{FeatureSpec, FunSpec, FunSuite}
+import org.scalatest._
 import org.scalatest.OptionValues._
 import ClientInfoHelper._
 
