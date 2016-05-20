@@ -5,7 +5,6 @@ import com.amazonaws.{AmazonClientException, AmazonServiceException}
 import featurebee.api.FeatureRegistry
 import featurebee.json.JsonFeatureRegistry
 import org.apache.commons.io.IOUtils
-import org.scalactic.Accumulation._
 import org.scalactic._
 
 import scala.util.{Failure, Success, Try}
