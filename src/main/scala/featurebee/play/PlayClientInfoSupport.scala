@@ -11,7 +11,7 @@ import featurebee.api.Feature._
 import scala.util.Try
 
 /**
- * Default support methods for converting a [[RequestHeader]] to a [[featurebee.ClientInfo]].
+ * Default support methods for converting a RequestHeader to a ClientInfo.
  *
  * If your fine with the way this object extracts the locale, UUID, and forced feature activation string from the play
  * request header you simply have to write s.th like this in your app, and import it via import PlayControllerSupport._ in
