@@ -31,3 +31,4 @@ after_success:
       sbt coveralls &&
       sh "$TRAVIS_BUILD_DIR/travis-ci-bintray-credentials.sh" &&
       sbt publish
+      sbt s3registry/publish
