@@ -31,9 +31,10 @@ resolvers in ThisBuild ++= Seq(
   "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
 )
 
-lazy val root = project in file(".")
+lazy val root = project.in( file(".") )
+    .aggregate(s3registryRef)
 
-lazy val s3registry = (project in file("s3-registry"))
+lazy val s3registry: Project = (project in file("s3-registry"))
   .dependsOn(root)
   .settings(
     name := "featurebee-s3-registry",
@@ -41,4 +42,6 @@ lazy val s3registry = (project in file("s3-registry"))
       "com.amazonaws" % "aws-java-sdk" % "1.11.2"
       )
   )
+lazy val s3registryRef = LocalProject("s3registry")
+
 
