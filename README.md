@@ -158,6 +158,81 @@ The `JSON` has to fulfill the following requirements:
 * description is mandatory
 * tags are optional
 
+## Reloadable Feature Registry based on files in S3
+
+```scala
+import java.util.concurrent.Executors
+import akka.actor.ActorSystem
+import com.amazonaws.services.s3.AmazonS3Client
+import com.autoscout24.classifiedlist.TypedEvents.{FeatureRegistryLoadedFromS3WithIgnoredErrors, FeatureRegistryLoadingFromS3Failed, FeatureRegistrySuccessfullyLoadedFromS3}
+import com.autoscout24.eventpublisher24.events._
+import com.google.inject.{AbstractModule, Provides, Singleton}
+import featurebee.api.FeatureRegistry
+import featurebee.registry.DefaultFeatureValueFeatureRegistry
+import featurebee.registry.s3.S3JsonFeatureRegistry.S3File
+import featurebee.registry.s3.{ReloadingFeatureRegistry, S3JsonFeatureRegistry}
+import org.scalactic.{Bad, Good}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+import scala.language.postfixOps
+
+class FeatureRegistryModule extends AbstractModule {
+
+  def configure() = {}
+
+  @Provides
+  @Singleton
+  def s3Client(configuration: Configuration): AmazonS3Client = new AmazonS3Client()
+
+  @Provides
+  @Singleton
+  def featureRegistry(amazonS3Client: AmazonS3Client, actorSystem: ActorSystem, eventPublisher: TypedEventPublisher): FeatureRegistry = {
+
+    val initialRegistry = s3FeatureRegistry(amazonS3Client, eventPublisher) match {
+      case Some(registry) => registry
+      case None => DefaultFeatureValueFeatureRegistry
+    }
+
+    val singleThreadExecContext = new ExecutionContext {
+      val threadPool = Executors.newFixedThreadPool(1)
+
+      def execute(runnable: Runnable) {
+        threadPool.submit(runnable)
+      }
+
+      def reportFailure(t: Throwable) {}
+    }
+
+    new ReloadingFeatureRegistry(initialRegistry,
+      () => s3FeatureRegistry(amazonS3Client, eventPublisher),
+      actorSystem.scheduler, 2 minutes, singleThreadExecContext
+    )
+  }
+
+  private val s3FeatureRegistry: (AmazonS3Client, TypedEventPublisher) => Option[FeatureRegistry] = {
+    (amazonS3Client, eventPublisher) =>
+      val bucketName = "as24prod-features-eu-west-1"
+      S3JsonFeatureRegistry(
+        Seq(
+          S3File(bucketName, "classified-list-featurebee.json", ignoreOnFailures = false),
+          S3File(bucketName, "classified-list-gecloud-featurebee.json", ignoreOnFailures = true)
+        )
+      )(amazonS3Client) match {
+        case Good(featureRegistryBuilt) =>
+
+          val errorString = featureRegistryBuilt.failedIgnoredFiles.map(_.toString)
+          if (errorString.nonEmpty) eventPublisher.publish(FeatureRegistryLoadedFromS3WithIgnoredErrors(errorString))
+          else eventPublisher.publish(FeatureRegistrySuccessfullyLoadedFromS3())
+          Some(featureRegistryBuilt.featureRegistry)
+
+        case Bad(errors) =>
+          eventPublisher.publish(FeatureRegistryLoadingFromS3Failed(errors.mkString("The following errors occured loading the features from S3", ";", "")))
+          None
+      }
+  }
+}
+```
+
 ## Fragment Services & Features
 
 When working with Fragments you may need to pass the feature toggles through to Fragment Service.
