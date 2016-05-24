@@ -36,6 +36,8 @@ object Features extends Features {
 }
 ```
 
+Hint: If you want a dynamic S3 based json file registry, see farther below.
+
 Add file `featureBee.json` at your `resources` or `conf` folder with `JSON` that explains behaviour of your feature flags, for example:
 
 ```json
@@ -160,6 +162,11 @@ The `JSON` has to fulfill the following requirements:
 
 ## Reloadable Feature Registry based on files in S3
 
+Featurebee supports dynamic, periodic re-loading of the feature registry from a S3 bucket possibly containing several feature json files in the format as described
+ above. For that to work you must move the creation of the FeatureRegistry to the play guice context. S3 loading is supplied by S3JsonFeatureRegistry and the 
+ reloading feature is implemented by ReloadingFeatureRegistry. See below for an example to enable periodic reloading of feature json files from S3.
+ 
+
 ```scala
 import java.util.concurrent.Executors
 import akka.actor.ActorSystem
@@ -232,6 +239,8 @@ class FeatureRegistryModule extends AbstractModule {
   }
 }
 ```
+Please note that you are able to define files that don't break the reloading in case of errors. With that you are able to separate features for downstream
+fragments and you're own features in two files with possibly different access policies.
 
 ## Fragment Services & Features
 
