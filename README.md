@@ -185,6 +185,8 @@ import scala.language.postfixOps
 
 class FeatureRegistryModule extends AbstractModule {
 
+  private val bucketName = "as24prod-features-eu-west-1"
+
   def configure() = {}
 
   @Provides
@@ -200,16 +202,6 @@ class FeatureRegistryModule extends AbstractModule {
       case None => DefaultFeatureValueFeatureRegistry
     }
 
-    val singleThreadExecContext = new ExecutionContext {
-      val threadPool = Executors.newFixedThreadPool(1)
-
-      def execute(runnable: Runnable) {
-        threadPool.submit(runnable)
-      }
-
-      def reportFailure(t: Throwable) {}
-    }
-
     new ReloadingFeatureRegistry(initialRegistry,
       () => s3FeatureRegistry(amazonS3Client, eventPublisher),
       actorSystem.scheduler, 2 minutes, singleThreadExecContext
@@ -218,7 +210,6 @@ class FeatureRegistryModule extends AbstractModule {
 
   private val s3FeatureRegistry: (AmazonS3Client, TypedEventPublisher) => Option[FeatureRegistry] = {
     (amazonS3Client, eventPublisher) =>
-      val bucketName = "as24prod-features-eu-west-1"
       S3JsonFeatureRegistry(
         Seq(
           S3File(bucketName, "classified-list-featurebee.json", ignoreOnFailures = false),
@@ -226,7 +217,6 @@ class FeatureRegistryModule extends AbstractModule {
         )
       )(amazonS3Client) match {
         case Good(featureRegistryBuilt) =>
-
           val errorString = featureRegistryBuilt.failedIgnoredFiles.map(_.toString)
           if (errorString.nonEmpty) eventPublisher.publish(FeatureRegistryLoadedFromS3WithIgnoredErrors(errorString))
           else eventPublisher.publish(FeatureRegistrySuccessfullyLoadedFromS3())
@@ -236,6 +226,12 @@ class FeatureRegistryModule extends AbstractModule {
           eventPublisher.publish(FeatureRegistryLoadingFromS3Failed(errors.mkString("The following errors occured loading the features from S3", ";", "")))
           None
       }
+  }
+
+  private val singleThreadExecContext = new ExecutionContext {
+    val threadPool = Executors.newFixedThreadPool(1)
+    def execute(runnable: Runnable) { threadPool.submit(runnable) }
+    def reportFailure(t: Throwable) {}
   }
 }
 ```
