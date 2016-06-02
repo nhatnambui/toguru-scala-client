@@ -1,5 +1,7 @@
 package featurebee.registry.s3
 
+import java.time.{LocalDateTime, ZoneId}
+
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.{AmazonClientException, AmazonServiceException}
 import featurebee.api.FeatureRegistry
@@ -11,38 +13,47 @@ import scala.util.{Failure, Success, Try}
 
 object S3JsonFeatureRegistry {
 
+  implicit val localDateTimeOrdering = LocalDateTimeOrderingDescending
+
   case class Error(file: S3File, message: String)
 
   case class S3File(bucketName: String, key: String, ignoreOnFailures: Boolean = false)
 
-  case class FeatureRegistryBuilt(featureRegistry: FeatureRegistry, failedIgnoredFiles: Seq[Error])
+  case class FeatureRegistryBuilt(featureRegistry: FeatureRegistry, failedIgnoredFiles: Seq[Error], lastModified: LocalDateTime)
 
   def apply(s3Files: Seq[S3File])(implicit amazonS3Client: AmazonS3Client): FeatureRegistryBuilt Or Seq[Error] = {
 
-    case class Accum(jsons: Seq[String] = Seq.empty, failedAndIgnored:Seq[Error] = Seq.empty, breakingErrors: Seq[Error] = Seq.empty)
+    case class Accum(jsons: Seq[String] = Seq.empty, failedAndIgnored: Seq[Error] = Seq.empty, breakingErrors: Seq[Error] = Seq.empty,
+                     latestLastModified: Option[LocalDateTime] = None)
 
-    val jsonsAndErrors: Accum = s3Files.foldLeft(Accum()){
+    val jsonsAndErrors: Accum = s3Files.foldLeft(Accum()) {
       (accum, s3File) =>
         val r = contentFromS3(s3File)
         (r, s3File) match {
           case (Bad(f), S3File(bucket, key, true)) => accum.copy(failedAndIgnored = accum.failedAndIgnored :+ f)
           case (Bad(f), S3File(bucket, key, false)) => accum.copy(breakingErrors = accum.breakingErrors :+ f)
-          case (Good(json), S3File(_, _, _)) => accum.copy(jsons = accum.jsons :+ json)
+          case (Good((json, maybeLastModified)), S3File(_, _, _)) =>
+            val a = accum.copy(jsons = accum.jsons :+ json)
+            val newLastModified = Seq(maybeLastModified, a.latestLastModified).flatten.sorted.headOption
+            a.copy(latestLastModified = newLastModified)
         }
     }
 
     jsonsAndErrors match {
-      case Accum(jsons, ignored, errors) if errors.isEmpty => Good(FeatureRegistryBuilt(new JsonFeatureRegistry(jsons), ignored))
-      case Accum(jsons, ignored, errors) if errors.nonEmpty => Bad(errors)
+      case Accum(jsons, ignored, errors, latestLastModified) if errors.isEmpty =>
+        Good(FeatureRegistryBuilt(new JsonFeatureRegistry(jsons), ignored, latestLastModified.getOrElse(LocalDateTime.now())))
+      case Accum(jsons, ignored, errors, latestLastModified) if errors.nonEmpty => Bad(errors)
     }
   }
 
-  private[s3] def contentFromS3(s3File: S3File)(implicit amazonS3Client: AmazonS3Client): String Or Error = {
+  private[s3] def contentFromS3(s3File: S3File)(implicit amazonS3Client: AmazonS3Client): (String, Option[LocalDateTime]) Or Error = {
     Try {
       val s3object = amazonS3Client.getObject(s3File.bucketName, s3File.key)
-      IOUtils.toString(s3object.getObjectContent)
+      val maybeLastModifInstant = Option(s3object.getObjectMetadata.getLastModified).map(_.toInstant).map(i => LocalDateTime.ofInstant(i, ZoneId.systemDefault()))
+      (IOUtils.toString(s3object.getObjectContent), maybeLastModifInstant)
     } match {
-      case Success(j) => Good(j)
+      case Success((j, m)) =>
+        Good((j, m))
       case Failure(ase: AmazonServiceException) =>
         Bad(Error(s3File,
           s"""
@@ -62,4 +73,9 @@ object S3JsonFeatureRegistry {
       case Failure(other) => Bad(Error(s3File, s"${other.getClass.getName}: ${other.getMessage}"))
     }
   }
+
+  object LocalDateTimeOrderingDescending extends Ordering[LocalDateTime] {
+    override def compare(x: LocalDateTime, y: LocalDateTime): Int = - x.compareTo(y)
+  }
+
 }
