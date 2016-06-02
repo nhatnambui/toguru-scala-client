@@ -163,11 +163,21 @@ The `JSON` has to fulfill the following requirements:
 ## Reloadable Feature Registry based on files in S3
 
 Featurebee supports dynamic, periodic re-loading of the feature registry from a S3 bucket possibly containing several feature json files in the format as described
- above. For that to work you must move the creation of the FeatureRegistry to the play guice context. S3 loading is supplied by S3JsonFeatureRegistry and the 
- reloading feature is implemented by ReloadingFeatureRegistry. See below for an example to enable periodic reloading of feature json files from S3.
+ above. For that to work you it's best to move the creation of the FeatureRegistry to the play guice context. 
+ 
+S3 loading is supplied by S3JsonFeatureRegistry and the reloading feature is implemented by ReloadingFeatureRegistry.
+
+### ReloadingFeatureRegistry
+ReloadingFeatureRegistry inspects the last modification date of the inital and the re-creator function, adds the activationDelay duration to it and activates 
+the registry on the resulting point in time. With that approach it should be possible to achieve that all instances of a service activate a new feature registry
+at the same time and by that minimizing the problems experienced by end users. Would the instances switch the registry at different points in time some problems 
+in their experience could arise.
+
+See below for an example to enable periodic reloading of feature json files from S3.
  
 
 ```scala
+import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import akka.actor.ActorSystem
 import com.amazonaws.services.s3.AmazonS3Client
@@ -198,17 +208,18 @@ class FeatureRegistryModule extends AbstractModule {
   def featureRegistry(amazonS3Client: AmazonS3Client, actorSystem: ActorSystem, eventPublisher: TypedEventPublisher): FeatureRegistry = {
 
     val initialRegistry = s3FeatureRegistry(amazonS3Client, eventPublisher) match {
-      case Some(registry) => registry
-      case None => DefaultFeatureValueFeatureRegistry
+      case Some((registry, lastModified)) => (registry, lastModified)
+      case None => (DefaultFeatureValueFeatureRegistry, LocalDateTime.MIN)
     }
 
-    new ReloadingFeatureRegistry(initialRegistry,
-      () => s3FeatureRegistry(amazonS3Client, eventPublisher),
-      actorSystem.scheduler, 2 minutes, singleThreadExecContext
+    new ReloadingFeatureRegistry(initialRegistry, () => s3FeatureRegistry(amazonS3Client, eventPublisher),
+      actorSystem.scheduler, reloadAfter = 2 minutes, activationDelay = 2 min 10 seconds, singleThreadExecContext
     )
   }
 
-  private val s3FeatureRegistry: (AmazonS3Client, TypedEventPublisher) => Option[FeatureRegistry] = {
+  // S3 Feature registry returns a merge of all feature json files and the latest modification date of all of them
+  // in case of failures it returns None
+  private val s3FeatureRegistry: (AmazonS3Client, TypedEventPublisher) => Option[(FeatureRegistry, LocalDateTime)] = {
     (amazonS3Client, eventPublisher) =>
       S3JsonFeatureRegistry(
         Seq(
@@ -220,7 +231,7 @@ class FeatureRegistryModule extends AbstractModule {
           val errorString = featureRegistryBuilt.failedIgnoredFiles.map(_.toString)
           if (errorString.nonEmpty) eventPublisher.publish(FeatureRegistryLoadedFromS3WithIgnoredErrors(errorString))
           else eventPublisher.publish(FeatureRegistrySuccessfullyLoadedFromS3())
-          Some(featureRegistryBuilt.featureRegistry)
+          Some((featureRegistryBuilt.featureRegistry, featureRegistryBuilt.lastModified))
 
         case Bad(errors) =>
           eventPublisher.publish(FeatureRegistryLoadingFromS3Failed(errors.mkString("The following errors occured loading the features from S3", ";", "")))
@@ -235,8 +246,8 @@ class FeatureRegistryModule extends AbstractModule {
   }
 }
 ```
-Please note that you are able to define files that don't break the reloading in case of errors. With that you are able to separate features for downstream
-fragments and you're own features in two files with possibly different access policies.
+Please note that you are able to define files that don't break the reloading in case of errors (ignoreOnFailures). With that you are able to separate features for downstream
+fragments (see below) and you're own features in two files with possibly different access policies and/or failure handling (ignore or not, as in above example)
 
 ## Fragment Services & Features
 

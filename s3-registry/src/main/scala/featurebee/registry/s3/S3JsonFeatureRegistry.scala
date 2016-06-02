@@ -11,6 +11,11 @@ import org.scalactic._
 
 import scala.util.{Failure, Success, Try}
 
+
+/**
+  * S3 Feature registry supports loading of several feature json files from S3.
+  * It merges all feature json files and also returns the latest modification date of the set of files.
+  */
 object S3JsonFeatureRegistry {
 
   implicit val localDateTimeOrdering = LocalDateTimeOrderingDescending
@@ -19,6 +24,11 @@ object S3JsonFeatureRegistry {
 
   case class S3File(bucketName: String, key: String, ignoreOnFailures: Boolean = false)
 
+  /**
+    * @param featureRegistry the resulting feature registry from all feature json files
+    * @param failedIgnoredFiles a list of error descriptions for json files that could be ignored on errors
+    * @param lastModified the most recent S3 modification date of the json files
+    */
   case class FeatureRegistryBuilt(featureRegistry: FeatureRegistry, failedIgnoredFiles: Seq[Error], lastModified: LocalDateTime)
 
   def apply(s3Files: Seq[S3File])(implicit amazonS3Client: AmazonS3Client): FeatureRegistryBuilt Or Seq[Error] = {
