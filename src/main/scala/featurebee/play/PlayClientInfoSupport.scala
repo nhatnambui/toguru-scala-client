@@ -46,7 +46,9 @@ object PlayClientInfoSupport {
     val reqHeaders = lowerCaseKeys(requestHeader.headers.toSimpleMap)
     lazy val maybeForcedFromHeader = reqHeaders.get("x-featurebee").orElse(reqHeaders.get("featurebee")).
       flatMap(featuresString => parseForcedFeaturesString(featuresString)(featureName))
-    lazy val maybeForcedFromCookie = requestHeader.cookies.get("featurebee").flatMap(cookie => parseForcedFeaturesString(cookie.value)(featureName))
+    lazy val maybeForcedFromCookie = requestHeader.cookies.get("featurebee")
+      .orElse(requestHeader.cookies.get("featureBee"))
+      .flatMap(cookie => parseForcedFeaturesString(cookie.value)(featureName))
 
     lazy val lowerCasedKeysQueryStringMap = lowerCaseKeys(requestHeader.queryString)
 
