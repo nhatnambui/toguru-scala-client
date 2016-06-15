@@ -4,22 +4,27 @@ import java.util.Locale
 
 import featurebee.api.Feature
 import featurebee.helpers.ClientInfoHelper
-import featurebee.{ClientInfoImpl, ClientInfo}
-import org.scalatest.{OptionValues, ShouldMatchers, FeatureSpec, FunSuite}
+import featurebee.{ClientInfo, ClientInfoImpl}
+import org.scalatest.{FeatureSpec, FunSuite, OptionValues, ShouldMatchers}
 import ClientInfoHelper._
+import org.scalactic.Or
 
 import scala.None
 
 class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with OptionValues {
 
-  lazy val featureReg = StaticJsonFeatureRegistry("feature-config-sample.txt")
+  implicit class GoodOrBad[T, F](or: T Or F) {
+    def value = or.getOrElse(fail(s"Expected a Good but got a $or"))
+  }
+
+  lazy val featureRegOrError = StaticJsonFeatureRegistry.safeApply("feature-config-sample.txt")
 
   scenario("specific feature from static Json Feature registry from file in classpath") {
-    assert(featureReg.feature("Name of the Feature").nonEmpty)
+    assert(featureRegOrError.value.feature("Name of the Feature").nonEmpty)
   }
 
   scenario("all features Creating Static Json Feature registry from file in classpath") {
-    assert(featureReg.allFeatures.size === 1)
+    assert(featureRegOrError.value.allFeatures.size === 1)
   }
 
   feature("Duplicate feature names") {
@@ -43,7 +48,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
            |]
        """.stripMargin
 
-      new JsonFeatureRegistry(jsonConfig).feature("DuplicateName").value.featureDescription.description should be("Some additional description 1")
+      JsonFeatureRegistry(jsonConfig).value.feature("DuplicateName").value.featureDescription.description should be("Some additional description 1")
     }
 
     scenario("in two files: first has precedence") {
@@ -71,7 +76,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
            |]
        """.stripMargin
 
-      new JsonFeatureRegistry(Seq(jsonConfig1, jsonConfig2)).feature("DuplicateName").value.featureDescription.description should
+      JsonFeatureRegistry(Seq(jsonConfig1, jsonConfig2)).value.feature("DuplicateName").value.featureDescription.description should
         be("Some additional description 1")
     }
   }
@@ -90,7 +95,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
            |]
        """.stripMargin
 
-      new JsonFeatureRegistry(Seq(jsonConfig1)).feature("CAMELCASE").value.featureDescription.description should
+      JsonFeatureRegistry(Seq(jsonConfig1)).value.feature("CAMELCASE").value.featureDescription.description should
         be("Some additional description 1")
     }
   }
@@ -107,7 +112,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "activation": [{"default": true}]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl()
 
       sut.featureStringForService("content-service") should be("")
@@ -123,7 +128,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": []
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl()
 
       sut.featureStringForService("content-service") should be("")
@@ -139,7 +144,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": ["content-service"]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl()
 
       sut.featureStringForService("content-service") should be("name-of-feature=true")
@@ -155,7 +160,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": ["content-service"]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl()
 
       sut.featureStringForService("content-service") should be("name-of-feature=false")
@@ -171,7 +176,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": ["content-service"]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl(None, None, None, forceFeatureTo("name-of-feature", enabled = true))
 
       sut.featureStringForService("content-service") should be("name-of-feature=true")
@@ -187,7 +192,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": ["content-service"]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl(None, None, None, forceFeatureTo("name-of-feature", enabled = false))
 
       sut.featureStringForService("content-service") should be("name-of-feature=false")
@@ -203,7 +208,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": ["content-service"]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl(None, Some(new Locale("de", "DE")))
 
       sut.featureStringForService("content-service") should be("name-of-feature=true")
@@ -219,7 +224,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |  "services": ["content-service"]
           |}]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl(None, Some(new Locale("de-DE")))
 
       sut.featureStringForService("content-service") should be("name-of-feature=false")
@@ -243,7 +248,7 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
           |}
           |]""".stripMargin
 
-      val sut = new JsonFeatureRegistry(input)
+      val sut = JsonFeatureRegistry(input).value
       implicit val clientInfo: ClientInfo = ClientInfoImpl()
 
       sut.featureStringForService("content-service") should be("name-of-feature=true|name-of-feature-2=true")

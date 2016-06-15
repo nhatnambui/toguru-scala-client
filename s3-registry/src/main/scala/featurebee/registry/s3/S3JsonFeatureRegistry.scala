@@ -5,6 +5,7 @@ import java.time.{LocalDateTime, ZoneId}
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.{AmazonClientException, AmazonServiceException}
 import featurebee.api.FeatureRegistry
+import featurebee.impl.FeatureDescription
 import featurebee.json.JsonFeatureRegistry
 import org.apache.commons.io.IOUtils
 import org.scalactic._
@@ -33,26 +34,30 @@ object S3JsonFeatureRegistry {
 
   def apply(s3Files: Seq[S3File])(implicit amazonS3Client: AmazonS3Client): FeatureRegistryBuilt Or Seq[Error] = {
 
-    case class Accum(jsons: Seq[String] = Seq.empty, failedAndIgnored: Seq[Error] = Seq.empty, breakingErrors: Seq[Error] = Seq.empty,
+    case class Accum(featureDescriptions: Seq[FeatureDescription] = Seq.empty, failedAndIgnored: Seq[Error] = Seq.empty, breakingErrors: Seq[Error] = Seq.empty,
                      latestLastModified: Option[LocalDateTime] = None)
 
-    val jsonsAndErrors: Accum = s3Files.foldLeft(Accum()) {
+    val featureDescriptionsAndErrors: Accum = s3Files.foldLeft(Accum()) {
       (accum, s3File) =>
         val r = contentFromS3(s3File)
         (r, s3File) match {
           case (Bad(f), S3File(bucket, key, true)) => accum.copy(failedAndIgnored = accum.failedAndIgnored :+ f)
           case (Bad(f), S3File(bucket, key, false)) => accum.copy(breakingErrors = accum.breakingErrors :+ f)
-          case (Good((json, maybeLastModified)), S3File(_, _, _)) =>
-            val a = accum.copy(jsons = accum.jsons :+ json)
+          case (Good((json, maybeLastModified)), s3File@ S3File(_, _, ignoreFailures)) =>
+            val a = (JsonFeatureRegistry.featureDescriptions(json), ignoreFailures) match {
+              case (Good(featureDescriptions), _) => accum.copy(featureDescriptions = accum.featureDescriptions ++ featureDescriptions)
+              case (Bad(e), true) => accum.copy(failedAndIgnored = accum.failedAndIgnored :+ Error(s3File, e.head.errorMessage))
+              case (Bad(e), false) => accum.copy(breakingErrors = accum.breakingErrors :+ Error(s3File, e.head.errorMessage))
+            }
             val newLastModified = Seq(maybeLastModified, a.latestLastModified).flatten.sorted.headOption
             a.copy(latestLastModified = newLastModified)
         }
     }
 
-    jsonsAndErrors match {
-      case Accum(jsons, ignored, errors, latestLastModified) if errors.isEmpty =>
-        Good(FeatureRegistryBuilt(new JsonFeatureRegistry(jsons), ignored, latestLastModified.getOrElse(LocalDateTime.now())))
-      case Accum(jsons, ignored, errors, latestLastModified) if errors.nonEmpty => Bad(errors)
+    featureDescriptionsAndErrors match {
+      case Accum(featureDescriptions, ignored, errors, latestLastModified) if errors.isEmpty =>
+        Good(FeatureRegistryBuilt(new JsonFeatureRegistry(featureDescriptions), ignored, latestLastModified.getOrElse(LocalDateTime.now())))
+      case Accum(_, ignored, errors, _) if errors.nonEmpty => Bad(errors ++ ignored)
     }
   }
 
