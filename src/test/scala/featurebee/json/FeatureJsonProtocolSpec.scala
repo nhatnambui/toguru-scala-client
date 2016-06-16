@@ -38,6 +38,20 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
                                                 |  "activation": [{"trafficDistribution": "96-100"}]
                                                 |}]""".stripMargin
 
+  val tooHighUuidDistributionSingleRange = """[{
+                                                |  "name": "Name of the Feature",
+                                                |  "description": "Some additional description",
+                                                |  "tags": ["Team Name", "Or Service name"],
+                                                |  "activation": [{"trafficDistribution": "90-101"}]
+                                                |}]""".stripMargin
+
+  val tooLowUuidDistributionSingleRange = """[{
+                                                |  "name": "Name of the Feature",
+                                                |  "description": "Some additional description",
+                                                |  "tags": ["Team Name", "Or Service name"],
+                                                |  "activation": [{"trafficDistribution": "0-10"}]
+                                                |}]""".stripMargin
+
   feature("Parsing of feature desc json") {
     scenario("Successfully parse sample json from story desc") {
       val featureDescs = sampleJsonChromeDE.parseJson.convertTo[Seq[FeatureDescription]]
@@ -68,6 +82,20 @@ class FeatureJsonProtocolSpec extends FeatureSpec {
       val featureDescs = sampleJsonUuidDistributionSingleRange.parseJson.convertTo[Seq[FeatureDescription]]
       assert(featureDescs.head.activation.size === 1)
       assert(featureDescs.head.activation.head === UuidDistributionCondition(96 to 100))
+    }
+
+    scenario("Uuid distribution single range is too high") {
+      val ex = intercept[DeserializationException] {
+        val featureDescs = tooHighUuidDistributionSingleRange.parseJson.convertTo[Seq[FeatureDescription]]
+      }
+      assert(ex.getMessage === "Expected range (min=1, max=100) in format e.g. 5-10 but got 90-101")
+    }
+
+    scenario("Uuid distribution single range is too low") {
+      val ex = intercept[DeserializationException] {
+        val featureDescs = tooLowUuidDistributionSingleRange.parseJson.convertTo[Seq[FeatureDescription]]
+      }
+      assert(ex.getMessage === "Expected range (min=1, max=100) in format e.g. 5-10 but got 0-10")
     }
   }
 

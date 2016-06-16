@@ -47,7 +47,7 @@ case class CultureCondition(cultures: Set[Locale]) extends Condition {
  */
 case class UuidDistributionCondition(ranges: Seq[Range], f: UUID => Int) extends Condition {
 
-  ranges.foreach(r => if (r.head < 0 || r.last > 100) throw new IllegalArgumentException("Range should describe a range between 0 and 100 inclusive"))
+  ranges.foreach(r => if (r.head < 1 || r.last > 100) throw new IllegalArgumentException("Range should describe a range between 1 and 100 inclusive"))
 
   override def applies(clientInfo: ClientInfo): Boolean = {
     clientInfo.uuid.exists { uuid =>

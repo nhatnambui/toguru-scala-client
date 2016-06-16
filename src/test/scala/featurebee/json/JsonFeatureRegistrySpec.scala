@@ -81,6 +81,25 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
     }
   }
 
+  feature("Feature names starting with numbers") {
+
+    scenario("Feature names starting with numbers") {
+      val jsonConfig =
+        s"""
+           |[
+           |{
+           |  "name": "1234-feature",
+           |  "description": "Some description ",
+           |  "tags": ["Team Name", "Or Service name"],
+           |  "activation": [{"culture": ["de-DE"]}]
+           |}
+           |]
+       """.stripMargin
+
+      JsonFeatureRegistry(jsonConfig).value.feature("1234-feature").value.featureDescription.name should be("1234-feature")
+    }
+  }
+
   feature("Feature names are case insensitive") {
     scenario("Feature names are case insensitive") {
       val jsonConfig1 =
@@ -148,6 +167,22 @@ class JsonFeatureRegistrySpec extends FeatureSpec with ShouldMatchers with Optio
       implicit val clientInfo: ClientInfo = ClientInfoImpl()
 
       sut.featureStringForService("content-service") should be("name-of-feature=true")
+    }
+
+    scenario("There is a feature for a service starting with numbers and it is enabled by default") {
+      val input =
+        """[{
+          |  "name": "1234-feature",
+          |  "description": "Some additional description",
+          |  "tags": ["Team Name", "Or Service name"],
+          |  "activation": [{"default": true}],
+          |  "services": ["content-service"]
+          |}]""".stripMargin
+
+      val sut = JsonFeatureRegistry(input).value
+      implicit val clientInfo: ClientInfo = ClientInfoImpl()
+
+      sut.featureStringForService("content-service") should be("1234-feature=true")
     }
 
     scenario("There is a feature for a service and it is disabled by default") {
