@@ -148,6 +148,8 @@ All conditions have to be fulfilled (logical AND).
 * `userAgentFragments`: JSON Array of Strings that must be contained in the user agent
   * Example: `{"userAgentFragments": ["Firefox"]}`
 * `trafficDistribution`: JSON Array or a single JSON String in the from `"FROM-TO"` where `TO` > `FROM` and `1 <= FROM,TO <= 100`. 
+  Be aware that in the standard impl of PlayClientInfoSupport this is derived by looking at a cookie value which is expected to be a UUID. If this cookie
+  is not present, a random UUID is generated which means that the feature using trafficDistribution will not be stable for this client!
   * Examples: 
     * `{ "trafficDistribution": "1-100" }` 
     * `{ "trafficDistribution": "51-100" }` 
