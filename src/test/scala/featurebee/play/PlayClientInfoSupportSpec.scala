@@ -83,5 +83,12 @@ class PlayClientInfoSupportSpec extends FeatureSpec {
       assert(clientInfo.forcedFeatureToggle("feature1-forced-by-query-param").value)
       assert(clientInfo.forcedFeatureToggle("feature2-forced-by-query-param").value === false)
     }
+
+    scenario("Forcing one feature toggle twice by query param takes only first occurence") {
+      val requestHeaderWithTheSameFeatureTwiceInQueryString = FakeRequest.apply("GET",
+        "http://priceestimation.autoscout24.de?featureBee=feature1-forced-by-query-param%3Dtrue%7Cfeature1-forced-by-query-param%3Dfalse", fakeHeaders, "body")
+      val clientInfo: ClientInfo = ControllersSampleSupport.requestToClientInfo(requestHeaderWithTwoFeaturesInQueryString)
+      assert(clientInfo.forcedFeatureToggle("feature1-forced-by-query-param").value === true)
+    }
   }
 }
