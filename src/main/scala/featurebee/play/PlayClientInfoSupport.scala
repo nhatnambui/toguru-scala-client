@@ -58,9 +58,8 @@ object PlayClientInfoSupport {
       featureName => {
         maybeFeatureBeeString.map {
           case Nil => None
-          case featureString :: Nil =>
+          case featureString :: _ => // we ignore double specified features by the client
             parseForcedFeaturesString(featureString)(featureName)
-          case other => throw new Exception(s"featurebee string has more than one element: $other ${other.size}")
         }.getOrElse(None)
       }
     }
