@@ -10,7 +10,7 @@ scalaVersion in ThisBuild := "2.11.8"
 scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings",
   "-Yno-adapted-args", "-Xmax-classfile-name", "130")
 
-val playVersion = "2.4.3"
+val playVersion = "2.5.4"
 
 libraryDependencies in ThisBuild ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.2",

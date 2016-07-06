@@ -15,7 +15,7 @@ import scala.language.postfixOps
 class ReloadingFeatureRegistrySpec extends FeatureSpec with BeforeAndAfterAll with OptionValues with MustMatchers with Eventually with IntegrationPatience {
 
   val testActorSystem = ActorSystem()
-  override def afterAll(): Unit = testActorSystem.shutdown()
+  override def afterAll(): Unit = testActorSystem.terminate()
 
   feature("Reloading of feature registry works") {
     scenario("Recreator function of feature registry really get's called and is used") {
