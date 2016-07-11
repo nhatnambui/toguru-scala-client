@@ -76,6 +76,10 @@ Currently only a static json file inside your deployment is supported, see Contr
 
 If you use the `PlayClientInfoSupport`, you may force feature activation regardless of the conditions you specify in your `JSON` feature config by setting a query param, a request Header, or a cookie. This order of mentioning the variants is also the order of precedence, so query param has precedence over cookie. All the keys are case insensitive.
 
+*IMPORTANT*: Please be aware that god mode only works if the feature is defined in the registry, i.e. the json in classpath or S3 contains the given feature. If 
+the feature is NOT present, and you define your features like above ```override def languageDropdown = Feature("language-dropdown").getOrElse(AlwaysOffFeature)```
+then the state defined by getOrElse(STATE) wins and forcing the feature to a specific state will not work
+
 ### Query Param
 
 Use query param `featurebee` to specify forced / god mode activation of features:
@@ -136,6 +140,11 @@ All conditions have to be fulfilled (logical AND).
 
 ### Format of conditions
 * `default`: JSON Boolean (`true` or `false`) or JSON String (`"on"` or `"off"`)
+  This defines a default ON or OFF activation of the feature for all clients. This state/activation may be overwritten by using god mode/forced feature toggling
+  *IMPORTANT*: Please be aware that god mode only works if the feature is defined in the registry, i.e. the json in classpath or S3 contains the given feature. If 
+  the feature is NOT present, and you define your features like above ```override def languageDropdown = Feature("language-dropdown").getOrElse(AlwaysOffFeature)```
+  then the state defined by getOrElse(STATE) wins and forcing the feature to a specific state will not work. So this is a big difference between defining the
+  default state of the feature in code with getOrElse and the default condition in the JSON!
   * Examples: 
     * `{ "default": true }` or `{ "default": false }` 
     * `{ "default": "on" }` or `{ "default": "off" }`
