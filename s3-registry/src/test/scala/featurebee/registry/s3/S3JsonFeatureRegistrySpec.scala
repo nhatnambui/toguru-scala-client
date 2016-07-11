@@ -78,6 +78,24 @@ class S3JsonFeatureRegistrySpec extends FeatureSpec with MustMatchers with Optio
         registryBuilt => registryBuilt.featureRegistry.feature("feature-xyz").value.featureDescription.name must be("feature-xyz")
       }
     }
+
+    scenario("Loading a present file in a bucket works and a feature name that does not exist in json returns a none") {
+
+      val s3Client = mock(classOf[AmazonS3Client])
+      val s3Obj = mock(classOf[S3Object])
+      val s3Meta = mock(classOf[ObjectMetadata])
+
+      when(s3Obj.getObjectContent).thenReturn(new S3ObjectInputStream(new StringInputStream(jsonConfig), mock(classOf[HttpRequestBase])))
+      when(s3Obj.getObjectMetadata).thenReturn(s3Meta)
+      when(s3Client.getObject("bucket", "key")).thenReturn(s3Obj)
+
+      val r = S3JsonFeatureRegistry.apply(Seq(S3File("bucket", "key")))(s3Client)
+      r.isGood must be(true)
+
+      r.foreach {
+        registryBuilt => registryBuilt.featureRegistry.feature("feature-non-existant") must be(None)
+      }
+    }
   }
 
   feature("Loading a multiple json feature files from S3") {
