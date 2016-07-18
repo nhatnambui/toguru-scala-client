@@ -15,7 +15,8 @@ Add to your `build.sbt` following resolver with dependency:
 ```scala
 resolvers += Resolver.bintrayRepo("tatsu-kondor", "maven")
 
-libraryDependencies += "com.autoscout24" %% "featurebee" % "(see version number above)"
+libraryDependencies += "com.autoscout24" %% "featurebee" % "(see version number above)",
+                       "com.autoscout24" %% "featurebee-s3-registry" % "(see version number above)" // if you want the S3 and the reloading feature registry
 ```
 
 Now you can use FeatureBee library.
