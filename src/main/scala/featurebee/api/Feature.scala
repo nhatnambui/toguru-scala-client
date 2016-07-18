@@ -36,18 +36,12 @@ abstract class BaseFeature extends Feature {
 /**
  * Use this object if you want to default to true for unknown feature names.
  */
-object AlwaysOnFeature extends BaseFeature {
-  val featureDescription = FeatureDescription("always-on", "a feature that is always on", None, Set(AlwaysOnCondition))
-  override def isActive(implicit clientInfo: ClientInfo): Boolean = true
-}
+object AlwaysOnFeature extends FeatureImpl(FeatureDescription("always-on", "a feature that is always on", None, Set(AlwaysOnCondition)))
 
 /**
  * Use this object if you want to default to false for unknown feature names.
  */
-object AlwaysOffFeature extends BaseFeature {
-  val featureDescription = FeatureDescription("always-off", "a feature that is always off", None, Set(AlwaysOffCondition))
-  override def isActive(implicit clientInfo: ClientInfo): Boolean = false
-}
+object AlwaysOffFeature extends FeatureImpl(FeatureDescription("always-off", "a feature that is always off", None, Set(AlwaysOffCondition)))
 
 class FeatureImpl(val desc: FeatureDescription) extends BaseFeature {
 
