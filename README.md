@@ -76,9 +76,8 @@ Currently only a static json file inside your deployment is supported, see Contr
 
 If you use the `PlayClientInfoSupport`, you may force feature activation regardless of the conditions you specify in your `JSON` feature config by setting a query param, a request Header, or a cookie. This order of mentioning the variants is also the order of precedence, so query param has precedence over cookie. All the keys are case insensitive.
 
-*IMPORTANT*: Please be aware that god mode only works if the feature is defined in the registry, i.e. the json in classpath or S3 contains the given feature. If 
-the feature is NOT present, and you define your features like above ```override def languageDropdown = Feature("language-dropdown").getOrElse(AlwaysOffFeature)```
-then the state defined by getOrElse(STATE) wins and forcing the feature to a specific state will not work
+*IMPORTANT*: Please be aware that GodMode will work even if that Feature is not defined in the Registry or the Registry fails to load.
+This means that `AlwaysOnFeature`/`AlwaysOffFeature` objects will be overridden by the GodMode.
 
 ### Query Param
 

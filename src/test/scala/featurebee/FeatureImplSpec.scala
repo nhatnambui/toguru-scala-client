@@ -41,7 +41,7 @@ class FeatureImplSpec extends FeatureSpec {
     }
   }
 
-  feature("Using block convenience methods in Feature for chrome only feature")  {
+  feature("Using block convenience methods in Feature for chrome only feature") {
     val featureDescriptionChromeOnly = FeatureDescription("name", "desc", tags = None,
       Set(UserAgentCondition(Set("Chrome"))))
     val feature = new FeatureImpl(featureDescriptionChromeOnly)
@@ -86,14 +86,24 @@ class FeatureImplSpec extends FeatureSpec {
   }
 
   feature("AlwaysOn/Off Feature") {
-    scenario("AlwaysOnFeature always activates feature") {
-      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(false))
+    scenario("AlwaysOnFeature activates feature when no GodMode is present") {
+      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => None)
       assert(AlwaysOnFeature.isActive(clientInfo) === true)
     }
 
-    scenario("AlwaysOffFeature always deactivates feature") {
-      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
+    scenario("GodMode wins over AlwaysOn Feature") {
+      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(false))
+      assert(AlwaysOnFeature.isActive(clientInfo) === false)
+    }
+
+    scenario("AlwaysOffFeature deactivates feature when no GodMode is present") {
+      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => None)
       assert(AlwaysOffFeature.isActive(clientInfo) === false)
+    }
+
+    scenario("GodMode wins over AlwaysOff Feature") {
+      val clientInfo = ClientInfoImpl(forcedFeatureToggle = (_) => Some(true))
+      assert(AlwaysOffFeature.isActive(clientInfo) === true)
     }
   }
 }
