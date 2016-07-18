@@ -6,6 +6,7 @@ FeatureBee client for Scala applications
 
 [![Build Status](https://travis-ci.org/AutoScout24/featurebee-scala.svg)](https://travis-ci.org/AutoScout24/featurebee-scala)
 [![Coverage Status](https://coveralls.io/repos/AutoScout24/featurebee-scala/badge.svg)](https://coveralls.io/r/AutoScout24/featurebee-scala)
+[![Download](https://api.bintray.com/packages/tatsu-kondor/maven/featurebee/images/download.svg) ](https://bintray.com/tatsu-kondor/maven/featurebee/_latestVersion)
 
 ## Setup
 
@@ -14,7 +15,7 @@ Add to your `build.sbt` following resolver with dependency:
 ```scala
 resolvers += Resolver.bintrayRepo("tatsu-kondor", "maven")
 
-libraryDependencies += "com.autoscout24" %% "featurebee" % "1.0.97"
+libraryDependencies += "com.autoscout24" %% "featurebee" % "(see version number above)"
 ```
 
 Now you can use FeatureBee library.
