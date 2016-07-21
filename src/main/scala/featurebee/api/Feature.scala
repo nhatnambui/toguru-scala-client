@@ -1,7 +1,8 @@
 package featurebee.api
 
 import featurebee.ClientInfo
-import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, FeatureDescriptionHelper, FeatureDescription}
+import featurebee.api.Feature.FeatureName
+import featurebee.impl.{AlwaysOffCondition, AlwaysOnCondition, FeatureDescription, FeatureDescriptionHelper}
 
 import scala.annotation.implicitNotFound
 
@@ -36,12 +37,12 @@ abstract class BaseFeature extends Feature {
 /**
  * Use this object if you want to default to true for unknown feature names.
  */
-object AlwaysOnFeature extends FeatureImpl(FeatureDescription("always-on", "a feature that is always on", None, Set(AlwaysOnCondition)))
+case class AlwaysOnFeature(name: FeatureName) extends FeatureImpl(FeatureDescription(name, "a feature that is always on", None, Set(AlwaysOnCondition)))
 
 /**
  * Use this object if you want to default to false for unknown feature names.
  */
-object AlwaysOffFeature extends FeatureImpl(FeatureDescription("always-off", "a feature that is always off", None, Set(AlwaysOffCondition)))
+case class AlwaysOffFeature(name: FeatureName) extends FeatureImpl(FeatureDescription(name, "a feature that is always off", None, Set(AlwaysOffCondition)))
 
 class FeatureImpl(val desc: FeatureDescription) extends BaseFeature {
 

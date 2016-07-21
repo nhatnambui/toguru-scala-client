@@ -22,12 +22,12 @@ class ReloadingFeatureRegistrySpec extends FeatureSpec with BeforeAndAfterAll wi
 
       val initialFeatureRegistry = new FeatureRegistry {
         override def allFeatures: Set[(FeatureName, Feature)] = ???
-        override def feature(name: String): Option[Feature] = Some(AlwaysOffFeature)
+        override def feature(name: String): Option[Feature] = Some(AlwaysOffFeature(name))
       }
 
       val subsequentFeatureRegistry = new FeatureRegistry {
         override def allFeatures: Set[(FeatureName, Feature)] = ???
-        override def feature(name: String): Option[Feature] = Some(AlwaysOnFeature)
+        override def feature(name: String): Option[Feature] = Some(AlwaysOnFeature(name))
       }
 
       val initial = (initialFeatureRegistry, LocalDateTime.MIN)
