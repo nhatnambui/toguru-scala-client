@@ -300,6 +300,6 @@ This will only pass across the appropriate features to the fragment service. e.g
 
 ## Copyright
 
-Copyright (C) 2015 AutoScout24 GmbH.
+Copyright (C) 2016 AutoScout24 GmbH.
 
 Distributed under the MIT License.
