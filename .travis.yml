@@ -7,7 +7,7 @@ cache:
   - "$HOME/.ivy2"
 
 scala:
-- 2.11.6
+- 2.11.8
 
 jdk:
 - oraclejdk8
@@ -18,11 +18,9 @@ script:
 - find $HOME/.sbt -name "*.lock" | xargs rm
 
 notifications:
-  email:
-  - pricingtool@autoscout24.com
   slack:
     rooms:
-      - as24-tatsu:XJHB0uxN45HgTE4yZil25oQS
+      - $SLACK_TOKEN
     on_success: change
     on_failure: always
 

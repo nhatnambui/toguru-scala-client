@@ -1,6 +1,6 @@
 import scala.util.Properties
 
-name := "featurebee"
+name := "toguru"
 organization in ThisBuild := "com.autoscout24"
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
@@ -32,16 +32,4 @@ resolvers in ThisBuild ++= Seq(
 )
 
 lazy val root = project.in( file(".") )
-    .aggregate(s3registryRef)
-
-lazy val s3registry: Project = (project in file("s3-registry"))
-  .dependsOn(root)
-  .settings(
-    name := "featurebee-s3-registry",
-    libraryDependencies in ThisBuild ++= Seq(
-      "com.amazonaws" % "aws-java-sdk" % "1.11.2"
-      )
-  )
-lazy val s3registryRef = LocalProject("s3registry")
-
 
