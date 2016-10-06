@@ -2,7 +2,7 @@ lazy val root = project.in( file(".") ).enablePlugins(GitVersioning)
 
 name := "toguru-scala-client"
 
-git.baseVersion := "0.1.0"
+git.baseVersion := "0.2.0"
 
 organization in ThisBuild := "com.autoscout24"
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))

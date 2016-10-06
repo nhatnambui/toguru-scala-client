@@ -11,7 +11,6 @@ import play.api.test.{FakeHeaders, FakeRequest, Helpers}
 import org.scalatest.OptionValues._
 import toguru.api._
 import toguru.test.TestActivations
-import toguru.play.PlaySupport._
 
 import scala.concurrent.duration._
 import scala.language.implicitConversions
@@ -60,7 +59,7 @@ class PlaySupportSpec extends WordSpec with ShouldMatchers {
 
   def createToggledController(provider: Activations.Provider = TestActivations()()) = {
 
-    val toguruClient = PlaySupport.toguruClient(client, provider)
+    val toguruClient = PlaySupport.testToguruClient(client, provider)
 
 
     new ToggledController(toguruClient) { }
@@ -69,7 +68,7 @@ class PlaySupportSpec extends WordSpec with ShouldMatchers {
   "ToggledAction helper" should {
     "provide request with toggling information" in {
       implicit val timeout = Timeout(2.seconds)
-      val toguru = PlaySupport.toguruClient(client, TestActivations(toggle -> Condition.On)())
+      val toguru = PlaySupport.testToguruClient(client, TestActivations(toggle -> Condition.On)())
       val controller = new MyController(toguru)
 
       val request = FakeRequest(HttpVerbs.GET, "/")
@@ -83,7 +82,7 @@ class PlaySupportSpec extends WordSpec with ShouldMatchers {
   "Direct toggling info" should {
     "provide toggling information" in {
       implicit val timeout = Timeout(2.seconds)
-      val toguru = PlaySupport.toguruClient(client, TestActivations(toggle -> Condition.On)())
+      val toguru = PlaySupport.testToguruClient(client, TestActivations(toggle -> Condition.On)())
       val controller = new MyControllerWithOwnTogglingInfo(toguru)
 
       val request = FakeRequest(HttpVerbs.GET, "/")

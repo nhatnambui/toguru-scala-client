@@ -65,7 +65,7 @@ object PlaySupport {
   /**
     * Creates a new toguru client based on the given client provider.
     *
-    * @param clientProvider the client provider to create [[toguru.api.ClientInfo]]s from [[play.api.mvc.Request]]s.
+    * @param clientProvider the client provider to create [[toguru.api.ClientInfo]]s from Play Requests.
     * @param endpointUrl the toguru server to use, e.g. <code>http://localhost:9000</code>
     * @return
     */
@@ -75,11 +75,11 @@ object PlaySupport {
   /**
     * Creates a new toguru client with forced test activations.
     *
-    * @param clientProvider the client provider to create [[toguru.api.ClientInfo]]s from [[play.api.mvc.Request]]s.
+    * @param clientProvider the client provider to create [[toguru.api.ClientInfo]]s from Play Requests.
     * @param testActivations the acrt
     * @return
     */
-  def toguruClient(clientProvider: PlayClientProvider, testActivations: Activations.Provider): PlayToguruClient =
+  def testToguruClient(clientProvider: PlayClientProvider, testActivations: Activations.Provider): PlayToguruClient =
     new ToguruClient(clientProvider, testActivations)
 
   /**

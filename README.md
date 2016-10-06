@@ -132,7 +132,7 @@ the TestActivations class.
 ```scala
 import toguru.test.TestActivations
 
-val toguruClient = PlaySupport.toguruClient(client, TestActivations(toggle -> Condition.On)())
+val toguruClient = PlaySupport.testToguruClient(client, TestActivations(toggle -> Condition.On)())
 
 val controller = new MyController(toguruClient)
 ```
