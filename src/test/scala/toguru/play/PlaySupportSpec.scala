@@ -1,6 +1,6 @@
 package toguru.play
 
-import java.util.{Locale, UUID}
+import java.util.UUID
 import javax.inject.Inject
 
 import akka.util.Timeout
@@ -10,6 +10,7 @@ import play.api.mvc._
 import play.api.test.{FakeHeaders, FakeRequest, Helpers}
 import org.scalatest.OptionValues._
 import toguru.api._
+import toguru.impl.RemoteActivationsProvider
 import toguru.test.TestActivations
 
 import scala.concurrent.duration._
@@ -17,11 +18,13 @@ import scala.language.implicitConversions
 
 class PlaySupportSpec extends WordSpec with ShouldMatchers {
 
+  val UserAgent = HeaderNames.USER_AGENT
+
   val toggle = Toggle("toggle-1")
 
   val client: PlayClientProvider = { implicit request =>
     import PlaySupport._
-    ClientInfo(userAgent, localeFromCookieValue("culture"), uuidFromCookieValue("myVisitor"), forcedToggle)
+    ClientInfo(uuidFromCookieValue("myVisitor"), forcedToggle).withAttribute(fromCookie("culture")).withAttribute(fromHeader(UserAgent))
   }
 
   // you will write such a class in your play app to automatically convert from Play's RequestHeader to ClientInfo
@@ -65,6 +68,15 @@ class PlaySupportSpec extends WordSpec with ShouldMatchers {
     new ToggledController(toguruClient) { }
   }
 
+  "toguruClient method" should {
+    "create a PlayToguruClient" in {
+      val client = PlaySupport.toguruClient(_ => ClientInfo(), "http://localhost:9001")
+      client shouldBe a[PlayToguruClient]
+
+      client.activationsProvider.asInstanceOf[RemoteActivationsProvider].close()
+    }
+  }
+
   "ToggledAction helper" should {
     "provide request with toggling information" in {
       implicit val timeout = Timeout(2.seconds)
@@ -95,7 +107,7 @@ class PlaySupportSpec extends WordSpec with ShouldMatchers {
 
 
   val fakeHeaders = FakeHeaders(Seq(
-    HeaderNames.USER_AGENT -> "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
+    UserAgent -> "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
     "X-toguru" -> "feature1-Forced-By-Header=true|feature2-Forced-By-Header=true",
     HeaderNames.COOKIE ->
       Cookies.encodeCookieHeader(Seq(
@@ -112,50 +124,50 @@ class PlaySupportSpec extends WordSpec with ShouldMatchers {
 
   "Conversion of request header to ClientInfo" should {
 
-    "Extraction of locale from culture cookie" in {
+    "extract culture attribute" in {
       val clientInfo = client(request)
-      clientInfo.culture.value shouldBe Locale.GERMANY
+      clientInfo.attributes.get("culture").value shouldBe "de-DE"
     }
 
-    "Extraction of user agent from user agent header" in {
+    "extract of user agent from user agent header" in {
       val clientInfo = client(request)
-      clientInfo.userAgent.value shouldBe "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
+      clientInfo.attributes.get(UserAgent).value shouldBe "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
     }
 
-    "Extraction of uuid from GUID or visitor cookie" in {
+    "extract of uuid from GUID or visitor cookie" in {
       val clientInfo = client(request)
       clientInfo.uuid.value shouldBe UUID.fromString("a5f409eb-2fdd-4499-b65b-b22bd7e51aa2")
     }
   }
 
   "Forcing feature toggles" should {
-    "Forcing feature toggles by http header" in {
+    "override feature toggles by http header" in {
       client(request).forcedToggle("feature1-Forced-By-HEADER").value shouldBe true
       client(request).forcedToggle("feature2-Forced-By-Header").value shouldBe true
     }
 
-    "Forcing feature toggles by cookie" in {
+    "override feature toggles by cookie" in {
       client(request).forcedToggle("feature1-Forced-By-COOKIE").value shouldBe true
       client(request).forcedToggle("feature2-Forced-By-Cookie").value shouldBe true
     }
 
-    "Forcing one feature toggle by query param" in {
+    "override one feature toggle by query param" in {
       val clientInfo: ClientInfo = client(request)
       clientInfo.forcedToggle("feature-forced-by-query-param").value shouldBe true
     }
 
-    "Forcing one feature toggle by query param with unusual case" in {
+    "override one feature toggle by query param with unusual case" in {
       val clientInfo: ClientInfo = client(requestWithToggleIdUpppercased)
       clientInfo.forcedToggle("feature-forced-by-query-param").value shouldBe true
     }
 
-    "Forcing two feature toggles by query param" in {
+    "override two feature toggles by query param" in {
       val clientInfo: ClientInfo = client(requestWithTwoTogglesInQueryString)
       clientInfo.forcedToggle("feature1-forced-by-query-param").value shouldBe true
       clientInfo.forcedToggle("feature2-forced-by-query-param").value shouldBe false
     }
 
-    "Forcing one feature toggle twice by query param takes only first occurence" in {
+    "override one feature toggle twice by query param takes only first occurrence" in {
       val clientInfo: ClientInfo = client(requestWithTwoTogglesInQueryString)
       clientInfo.forcedToggle("feature1-forced-by-query-param").value shouldBe true
     }
