@@ -3,12 +3,14 @@ package toguru.impl
 import java.net.ServerSocket
 import java.util.concurrent.Executors
 
+import org.http4s._
+import org.http4s.dsl._
 import org.http4s.headers._
 import org.http4s.server.blaze.BlazeBuilder
-import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{OptionValues, ShouldMatchers, WordSpec}
-import toguru.api.{Activations, Condition, DefaultActivations, Toggle}
+import toguru.api.{Condition, DefaultActivations, Toggle}
 import toguru.impl.RemoteActivationsProvider.{PollResponse, TogglePoller}
 
 import scala.concurrent.duration._
@@ -28,21 +30,21 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
   def createProvider(response: String, contentType: String = RemoteActivationsProvider.MimeApiV3): RemoteActivationsProvider =
     createProvider(poller(response, contentType))
 
+  def rollout(ts: ToggleState) = ts.activations.headOption.flatMap(_.rollout.map(_.percentage))
+
   "Fetching features from toggle endpoint" should {
 
-    def validateResponse(toggles: Seq[ToggleState], activations: Activations): Unit = {
+    def validateResponse(toggles: Seq[ToggleState]): Unit = {
       val toggleStateOne = toggles.collectFirst { case t if t.id == toggleOne.id => t }.value
       val toggleStateTwo = toggles.collectFirst { case t if t.id == toggleTwo.id => t }.value
 
       toggleStateOne.id shouldBe "toggle-one"
       toggleStateOne.tags shouldBe Map("services" -> "toguru")
-      toggleStateOne.rollout shouldBe None
+      rollout(toggleStateOne) shouldBe None
 
       toggleStateTwo.id shouldBe "toggle-two"
       toggleStateTwo.tags shouldBe Map("team" -> "Shared Services")
-      toggleStateTwo.rollout.value.percentage shouldBe 20
-
-      activations.apply(toggleOne) shouldBe Condition.Off
+      rollout(toggleStateTwo) shouldBe Some(20)
     }
 
     "send sequenceNo to server" in {
@@ -62,8 +64,8 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
           |{
           |  "sequenceNo": 10,
           |  "toggles": [
-          |    { "id": "toggle-one", "tags": {"services": "toguru"}},
-          |    { "id": "toggle-two", "tags": {"team": "Shared Services"}, "rollout": { "percentage": 20 } }
+          |    { "id": "toggle-one", "tags": {"services": "toguru"}, "activations": [] },
+          |    { "id": "toggle-two", "tags": {"team": "Shared Services"}, "activations": [ {"rollout": {"percentage": 20 }, "attributes": {} } ] }
           |  ]
           |}
           |""".stripMargin
@@ -71,10 +73,8 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
       val provider = createProvider(response)
 
       val toggles = provider.fetchToggleStates(None).value.toggles
-      provider.update()
-      val activations = provider.apply()
 
-      validateResponse(toggles, activations)
+      validateResponse(toggles)
     }
 
     "keeps latest sequence number in activation conditions" in {
@@ -135,10 +135,8 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
       val provider = createProvider(response, "")
 
       val toggles = provider.fetchToggleStates(None).value.toggles
-      provider.update()
-      val activations = provider.apply()
 
-      validateResponse(toggles, activations)
+      validateResponse(toggles)
     }
 
     "succeed if a V1 toggle response is received" in {
@@ -153,10 +151,8 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
       val provider = createProvider(response, "")
 
       val toggles = provider.fetchToggleStates(None).value.toggles
-      provider.update()
-      val activations = provider.apply()
 
-      validateResponse(toggles, activations)
+      validateResponse(toggles)
     }
 
     "fail if toggle endpoint returns 500" in {
@@ -194,9 +190,6 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
   }
 
   "Created activation provider" should {
-    import org.http4s._
-    import org.http4s.dsl._
-
     def createProviderAndServer(service: HttpService) = {
       val port = freePort
       (RemoteActivationsProvider(s"http://localhost:$port", pollInterval = 100.milliseconds),
@@ -259,7 +252,7 @@ class RemoteActivationsProviderSpec extends WordSpec with OptionValues with Shou
           """
             |{
             |  "sequenceNo": 10,
-            |  "toggles": [{"id":"toggle-one","tags":{"team":"Toguru Team","services":"toguru"},"rollout":{"percentage":20}}]
+            |  "toggles": [{"id":"toggle-one","tags":{"team":"Toguru Team","services":"toguru"},"activations":[{"rollout":{"percentage":20}, "attributes":{}}]}]
             |}""".stripMargin).withContentType(Some(contentTypeV3))
 
       var maybeSeqNo: Option[Long] = None
