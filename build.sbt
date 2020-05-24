@@ -96,5 +96,3 @@ lazy val play = (projectMatrix in file("play"))
     axisValues = Seq(PlayAxis.play26, VirtualAxis.jvm),
     _.settings(name := "toguru-scala-client-play26", libraryDependencies ++= dependencies.play(versions.play26))
   )
-
-publishConfiguration := publishConfiguration.value.withOverwrite(true)
