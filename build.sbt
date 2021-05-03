@@ -7,7 +7,7 @@ ThisBuild / version := (ThisBuild / version).value.replaceAll("\\-SNAPSHOT$", ""
 
 ThisBuild / resolvers ++= Seq(
   Resolver.jcenterRepo,
-  Resolver.githubPackages("AutoScout24"),
+  // Resolver.githubPackages("AutoScout24"),
   "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/"),
   Resolver.url(
     "as24-ivy-releases",
@@ -30,14 +30,13 @@ ThisBuild / credentials += (
 ThisBuild / scoverage.ScoverageKeys.coverageMinimum := 80
 ThisBuild / scoverage.ScoverageKeys.coverageFailOnMinimum := true
 
-githubOwner := "AutoScout24"
-githubRepository := "toguru-scala-client"
-
-ThisBuild / githubOwner := "AutoScout24"
-ThisBuild / githubRepository := "toguru-scala-client"
+// ThisBuild / githubOwner := "AutoScout24"
+// ThisBuild / githubRepository := "toguru-scala-client"
 
 addCommandAlias("format", "; scalafmt; test:scalafmt; scalafmtSbt")
 addCommandAlias("formatCheck", "; scalafmtCheck; test:scalafmtCheck; scalafmtSbtCheck")
+
+ThisBuild / publishTo := Some("Artifactory Realm" at "https://fast.services.as24.tech/artifactory/public/")
 
 val versions = new {
   val scala212                  = "2.12.12"
