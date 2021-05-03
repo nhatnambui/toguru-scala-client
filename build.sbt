@@ -7,7 +7,7 @@ ThisBuild / version := (ThisBuild / version).value.replaceAll("\\-SNAPSHOT$", ""
 
 ThisBuild / resolvers ++= Seq(
   Resolver.jcenterRepo,
-  // Resolver.githubPackages("AutoScout24"),
+  Resolver.githubPackages("AutoScout24"),
   "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/"),
   "fast-releases".at("https://fast.services.as24.tech/artifactory/public/"),
   Resolver.url(
