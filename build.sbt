@@ -36,7 +36,14 @@ ThisBuild / scoverage.ScoverageKeys.coverageFailOnMinimum := true
 addCommandAlias("format", "; scalafmt; test:scalafmt; scalafmtSbt")
 addCommandAlias("formatCheck", "; scalafmtCheck; test:scalafmtCheck; scalafmtSbtCheck")
 
-ThisBuild / publishTo := Some("Artifactory Realm".at("https://fast.services.as24.tech/artifactory/public/"))
+ThisBuild / publishTo := {
+  val fast = "https://fast.services.as24.tech/artifactory/public/"
+  if (isSnapshot.value) Some("snapshots".at(fast + "snapshots")) else Some("releases".at(fast + "releases"))
+}
+ThisBuild / publishMavenStyle := true
+
+publishConfiguration := publishConfiguration.value.withOverwrite(true)
+publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
 
 val versions = new {
   val scala212                  = "2.12.12"

@@ -1,3 +1,14 @@
+credentials += (
+  if (sys.env.contains("FAST_USER"))
+    Credentials(
+      "Artifactory Realm",
+      "fast.services.as24.tech",
+      sys.env("FAST_USER"),
+      sys.env("FAST_TOKEN")
+    )
+  else Credentials(Path.userHome / ".sbt" / ".credentials")
+)
+
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.10.0")
 
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.6.1")
