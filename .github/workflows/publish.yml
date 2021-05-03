@@ -14,6 +14,7 @@ jobs:
       FAST_TOKEN: ${{ secrets.FAST_TOKEN }}
       FAST_USER: ${{ secrets.FAST_USER }}
       FAST_EMAIL: ${{ secrets.FAST_EMAIL }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
