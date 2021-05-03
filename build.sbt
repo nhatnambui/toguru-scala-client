@@ -9,11 +9,11 @@ ThisBuild / resolvers ++= Seq(
   Resolver.jcenterRepo,
   // Resolver.githubPackages("AutoScout24"),
   "Typesafe repository".at("https://repo.typesafe.com/typesafe/releases/"),
+  "fast-releases".at("https://fast.services.as24.tech/artifactory/public/"),
   Resolver.url(
     "as24-ivy-releases",
     new URL("https://fast.services.as24.tech/artifactory/public/")
   )(Resolver.ivyStylePatterns),
-  "fast-releases".at("https://fast.services.as24.tech/artifactory/public/")
 )
 
 ThisBuild / credentials += (
