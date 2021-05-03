@@ -1,3 +1,8 @@
+resolvers += Resolver.url(
+  "as24-ivy-releases",
+  new URL("https://fast.services.as24.tech/artifactory/public/")
+)(Resolver.ivyStylePatterns)
+resolvers += "fast-releases".at("https://fast.services.as24.tech/artifactory/public/")
 credentials += (
   if (sys.env.contains("FAST_USER"))
     Credentials(
@@ -21,4 +26,4 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
 
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.5.2")
 
-// addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.2")
+addSbtPlugin("com.codecommit" % "sbt-github-packages" % "0.5.2")
