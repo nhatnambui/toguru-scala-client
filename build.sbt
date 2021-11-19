@@ -1,7 +1,7 @@
 ThisBuild / organization := "com.autoscout24"
 ThisBuild / licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
-ThisBuild / gitVersioningSnapshotLowerBound := "3.0.0"
+ThisBuild / gitVersioningSnapshotLowerBound := "3.0.1"
 // Snapshots cannot be published on BinTray
 ThisBuild / version := (ThisBuild / version).value.replaceAll("\\-SNAPSHOT$", "")
 

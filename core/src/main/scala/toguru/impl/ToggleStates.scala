@@ -5,7 +5,12 @@ import toguru.api.{Activations, Condition, Toggle}
 
 final case class ToggleStates(sequenceNo: Option[Long], toggles: Seq[ToggleState])
 
-final case class ToggleState(id: String, tags: Map[String, String], condition: Condition)
+final case class ToggleState(id: String, tags: Map[String, String], condition: Condition) {
+  lazy val servicesTag: Set[String] =
+    tags.get("services").toVector.flatMap(_.split(",")).map(_.trim).toSet
+  lazy val serviceTag: Option[String] =
+    tags.get("service").map(_.trim)
+}
 
 object ToggleState {
 
@@ -47,10 +52,7 @@ final class ToggleStateActivations(toggleStates: ToggleStates) extends Activatio
 
   override def togglesFor(service: String): Map[ToggleId, Condition] =
     toggleStates.toggles
-      .filter { toggle =>
-        toggle.tags.get("services").toVector.flatMap(_.split(",")).exists(_.trim == service) ||
-        toggle.tags.get("service").exists(_.trim == service)
-      }
+      .filter(toggle => toggle.serviceTag.exists(_ == service) || toggle.servicesTag.contains(service))
       .map(toggle => toggle.id -> conditions(toggle.id))
       .toMap
 
