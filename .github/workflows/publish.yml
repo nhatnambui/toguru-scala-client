@@ -5,6 +5,9 @@ on:
       - master
       - main
       - actions
+  create:
+    tags:
+      - v*
 
 jobs:
   build:
