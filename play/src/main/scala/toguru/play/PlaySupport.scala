@@ -21,46 +21,46 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * methods of this companion object.
   *
   * {{{
-  abstract class ToggledController(toguru: PlayToguruClient, cc: ControllerComponents)
-    extends AbstractController(cc) {
-    val ToggledAction = PlaySupport.ToggledAction(toguru, cc.parsers.defaultBodyParser)
-  }
-
-  class MyController @Inject()(toguru: PlayToguruClient, cc: ControllerComponents)
-    extends ToggledController(toguru, cc) {
-
-    def myAction = ToggledAction { implicit request =>
-      if (toggle.isOn)
-        Ok("Toggle is on")
-      else
-        Ok("Toggle is off")
-    }
-  }
- }}}
+  *  abstract class ToggledController(toguru: PlayToguruClient, cc: ControllerComponents)
+  *    extends AbstractController(cc) {
+  *    val ToggledAction = PlaySupport.ToggledAction(toguru, cc.parsers.defaultBodyParser)
+  *  }
+  *
+  *  class MyController @Inject()(toguru: PlayToguruClient, cc: ControllerComponents)
+  *    extends ToggledController(toguru, cc) {
+  *
+  *    def myAction = ToggledAction { implicit request =>
+  *      if (toggle.isOn)
+  *        Ok("Toggle is on")
+  *      else
+  *        Ok("Toggle is off")
+  *    }
+  *  }
+  * }}}
   * In case you already have a custom request in your app, consider extending it by applying the [[toguru.api.Toggling]]
   * trait:
   * {{{
-  class MyRequest[A](toguru: PlayToguruClient, request : Request[A]) extends WrappedRequest[A](request) with Toggling {
-    override val client = toguru.clientProvider(request)
-
-    override val activations = toguru.activationsProvider()
-  }
+  *  class MyRequest[A](toguru: PlayToguruClient, request : Request[A]) extends WrappedRequest[A](request) with Toggling {
+  *    override val client = toguru.clientProvider(request)
+  *
+  *    override val activations = toguru.activationsProvider()
+  *  }
   * }}}
   * You can also create your own Toggling instance if you need to wrap the request on your own:
   * {{{
-  class MyControllerWithOwnTogglingInfo @Inject()(toguru: PlayToguruClient, cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-    def myAction = Action { request =>
-      implicit val toggling = toguru(request)
-
-      if (toggle.isOn)
-        Ok("Toggle is on")
-      else
-        Ok("Toggle is off")
-    }
-  }
- }}}
+  *  class MyControllerWithOwnTogglingInfo @Inject()(toguru: PlayToguruClient, cc: ControllerComponents)
+  *    extends AbstractController(cc) {
+  *
+  *    def myAction = Action { request =>
+  *      implicit val toggling = toguru(request)
+  *
+  *      if (toggle.isOn)
+  *        Ok("Toggle is on")
+  *      else
+  *        Ok("Toggle is off")
+  *    }
+  *  }
+  * }}}
   */
 object PlaySupport extends AbstractPlaySupport {
 

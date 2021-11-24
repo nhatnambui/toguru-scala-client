@@ -1,0 +1,9 @@
+FROM 038571482621.dkr.ecr.eu-west-1.amazonaws.com/s24-base-jdk11
+RUN yum install -y \
+        # Versioning
+        git \
+        # FiZZ community library tooling
+        awscli tar jq \
+        # Build tooling
+        https://repo.scala-sbt.org/scalasbt/rpm/sbt-1.4.9.rpm &&\
+    yum clean all

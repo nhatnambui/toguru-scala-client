@@ -10,8 +10,8 @@ import scala.concurrent.{ExecutionContext, Future}
   * {{{
   * class MyRequest[A](toguru: PlayToguruClient, request : Request[A]) extends WrappedRequest[A](request) with Toggling {
   * override val client = toguru.clientProvider(request)
-  **
-override val activations = toguru.activationsProvider()
+  * *
+  * override val activations = toguru.activationsProvider()
   * }
   * }}}
   *

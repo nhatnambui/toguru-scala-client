@@ -50,7 +50,6 @@ trait Toggling {
 /**
   * Simple case class-based implementation of the Toggling trait. See also [[toguru.api.ToguruClient#apply]]
   *
-  *
   * @param client the client information to use
   * @param activations the activation conditions to use
   */

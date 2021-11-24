@@ -260,7 +260,6 @@ class RemoteActivationsProviderSpec extends AnyWordSpec with OptionValues with M
   }
 
   /**
-    *
     * @param times how many times we want to try.
     * @param wait how long to wait before the next try
     * @param test returns true if test (finally) succeeded, false if we need to retry
