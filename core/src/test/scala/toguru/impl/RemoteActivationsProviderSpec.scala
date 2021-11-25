@@ -1,7 +1,6 @@
 package toguru.impl
 
 import java.util.concurrent.Executors
-
 import net.jodah.failsafe.CircuitBreaker
 import org.mockito.Mockito._
 import org.mockito.scalatest.IdiomaticMockito
@@ -9,7 +8,7 @@ import org.scalatest.OptionValues
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import sttp.client.testing.SttpBackendStub
-import sttp.client.{Identity, Response}
+import sttp.client.{Identity, NothingT, Response}
 import sttp.model.{Header, MediaType}
 import toguru.api.{Condition, DefaultActivations, Toggle}
 import toguru.impl.RemoteActivationsProvider.{PollResponse, TogglePoller}
@@ -41,7 +40,7 @@ class RemoteActivationsProviderSpec extends AnyWordSpec with OptionValues with M
     createProvider(poller(response, contentType))
 
   def createProvider(
-      backend: SttpBackendStub[Identity, Nothing]
+      backend: SttpBackendStub[Identity, Nothing, NothingT]
   ): RemoteActivationsProvider =
     RemoteActivationsProvider(
       s"http://localhost:80",
