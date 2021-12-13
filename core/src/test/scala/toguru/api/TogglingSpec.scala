@@ -79,4 +79,35 @@ class TogglingSpec extends AnyFeatureSpec with Matchers {
     }
 
   }
+
+  Feature("Can build toggle strings with the minimal set of toggles required to be sent upstream") {
+
+    Scenario("considers forced toggles or service tagged ones that are not fully rolled out or rolled off") {
+      val fullyRolledOutToggle    = Toggle("fullyRolledOut")
+      val fullyRolledOffToggle    = Toggle("fullyRolledOff")
+      val beingRolledOutToggle    = Toggle("inProgress")
+      val alwaysOnToggle          = Toggle("alwaysOn")
+      val belongsToAnotherService = Toggle("anotherService")
+      val activations = TestActivations(
+        fullyRolledOutToggle    -> Condition.UuidRange(1 to 100),
+        fullyRolledOffToggle    -> Condition.Off,
+        beingRolledOutToggle    -> Condition.UuidRange(1 to 57),
+        alwaysOnToggle          -> Condition.On,
+        belongsToAnotherService -> Condition.On
+      )(
+        fullyRolledOutToggle    -> "service1",
+        fullyRolledOffToggle    -> "service2",
+        beingRolledOutToggle    -> "service1",
+        alwaysOnToggle          -> "service2",
+        belongsToAnotherService -> "service3"
+      )()
+
+      val clientInfo                    = ClientInfo(None, forceToggleTo("feature1", enabled = true))
+      implicit val toggleInfo: Toggling = TogglingInfo(clientInfo, activations)
+
+      toggleInfo.buildForwardingToggleString(
+        Set("service1", "service2")
+      ) mustBe ("inProgress=false|alwaysOn=true")
+    }
+  }
 }

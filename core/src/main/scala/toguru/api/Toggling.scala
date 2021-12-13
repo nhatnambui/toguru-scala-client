@@ -45,6 +45,34 @@ trait Toggling {
 
     TogglesString.build(toggleStates)
   }
+
+  /**
+    * Returns a toggling string that can be sent upstream that considers:
+    *  - Any toggle that was forced by the client
+    *  - Any toggle that is tagged with the services parameter and it is either not rolled out at 0 or 100%,
+    *    or locally defined as always on.
+    *
+    * @param services A collection of service names to be evaluated against the service or services tags of the toggle.
+    *                 Typically, if a service B is interested in receiving toggle X from service A, toggle X should add
+    *                 service A to its `services` tag (i.e the `services` tag should contain the name of the services
+    *                 that should forward the toggle).
+    * @return a string that can be added to a toguru querystring or header
+    */
+  def buildForwardingToggleString(services: Set[String]): String =
+    TogglesString.build(
+      activations
+        .apply()
+        .filter(toggle =>
+          client
+            .forcedToggle(toggle.id)
+            .getOrElse(
+              services.exists(toggle.serviceTagsContains) && (
+                toggle.rolloutPercentage.map(p => p > 0 && p < 100).getOrElse(toggle.condition.applies(client))
+              )
+            )
+        )
+        .map(toggle => toggle.id -> toggle.condition.applies(client))
+    )
 }
 
 /**

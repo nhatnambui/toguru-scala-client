@@ -5,23 +5,27 @@ import toguru.api.{Activations, Condition, Toggle}
 
 final case class ToggleStates(sequenceNo: Option[Long], toggles: Seq[ToggleState])
 
-final case class ToggleState(id: String, tags: Map[String, String], condition: Condition) {
+final case class ToggleState(id: String, tags: Map[String, String], condition: Condition, rolloutPercentage: Option[Int]) {
   lazy val servicesTag: Set[String] =
     tags.get("services").toVector.flatMap(_.split(",")).map(_.trim).toSet
   lazy val serviceTag: Option[String] =
     tags.get("service").map(_.trim)
+  def serviceTagsContains(serviceName: String): Boolean =
+    servicesTag.contains(serviceName) || serviceTag.contains(serviceName)
 }
 
 object ToggleState {
 
   def apply(id: String, tags: Map[String, String], activations: Seq[ToggleActivation]): ToggleState = {
 
-    val condition: Condition = {
-      val rollout = for {
-        activation <- activations.headOption
-        rollout    <- activation.rollout
-      } yield Condition.UuidRange(1 to rollout.percentage)
+    val rolloutPercentage: Option[Int] = for {
+      activation <- activations.headOption
+      rollout    <- activation.rollout
+    } yield rollout.percentage
 
+    val rollout: Option[Condition] = rolloutPercentage.map(percentage => Condition.UuidRange(1 to percentage))
+
+    val condition: Condition = {
       val attributes = for {
         activation <- activations.headOption.toSeq
         (k, v)     <- activation.attributes
@@ -33,7 +37,7 @@ object ToggleState {
       }
     }
 
-    new ToggleState(id, tags, condition)
+    new ToggleState(id, tags, condition, rolloutPercentage)
   }
 
 }

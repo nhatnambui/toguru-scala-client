@@ -2,7 +2,7 @@ package toguru.test
 
 import toguru.api.Toggle.ToggleId
 import toguru.api.{Activations, Condition, Toggle}
-import toguru.impl.ToggleState
+import toguru.impl.{ToggleState, UuidDistributionCondition}
 
 /**
   * A class for providing toggle activations to toggled code in tests
@@ -23,10 +23,15 @@ object TestActivations {
 
     override def apply(): Seq[ToggleState] =
       (activations.map(_._1) ++ services.map(_._1)).distinct.map { t =>
+        val condition = activations.collectFirst { case (`t`, c) => c }.getOrElse(Condition.Off)
         new ToggleState(
           t.id,
           services.find(_._1 == t).map("service" -> _._2).toMap,
-          activations.collectFirst { case (`t`, c) => c }.getOrElse(Condition.Off)
+          condition,
+          condition match {
+            case UuidDistributionCondition(ranges, _) => ranges.headOption.flatMap(_.toList.lastOption)
+            case _                                    => None
+          }
         )
       }
 
