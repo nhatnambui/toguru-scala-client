@@ -62,16 +62,21 @@ trait Toggling {
     TogglesString.build(
       activations
         .apply()
-        .filter(toggle =>
-          client
-            .forcedToggle(toggle.id)
-            .getOrElse(
-              services.exists(toggle.serviceTagsContains) && (
-                toggle.rolloutPercentage.map(p => p > 0 && p < 100).getOrElse(toggle.condition.applies(client))
-              )
-            )
+        .map(toggleState =>
+          (
+            toggleState.id,
+            client.forcedToggle(toggleState.id),
+            services.exists(toggleState.serviceTagsContains),
+            toggleState.rolloutPercentage,
+            toggleState.condition.applies(client)
+          )
         )
-        .map(toggle => toggle.id -> toggle.condition.applies(client))
+        .collect {
+          case (id, Some(forcedToggleValue), _, _, _)                                           => id -> forcedToggleValue
+          case (id, _, true, Some(percentage), condition) if percentage > 0 && percentage < 100 => id -> condition
+          case (id, _, true, None, true)                                                        => id -> true
+
+        }
     )
 }
 
